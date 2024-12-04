@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
+from tqdm import tqdm
 
-def get_frames(video, start, end, sample=1.0, fr=120):
+def get_frames(video, start, end, sample=1.0, step=1, fr=120):
     '''
     Get frames from start (sec) to end (sec) from the video
     '''
@@ -9,10 +10,17 @@ def get_frames(video, start, end, sample=1.0, fr=120):
     video.set(cv2.CAP_PROP_POS_FRAMES, start_index)
 
     frames = []
-    for i in range(int((end - start) * fr)):
+    counter = 0
+    for _ in range(int((end - start) * fr)):
         ret, frame = video.read()
         if not ret:
             break
+
+        counter += 1
+        if counter % step == 0:
+            counter = 0
+        else:
+            continue
 
         frames.append(convert_frame(frame, sample))
 
@@ -22,10 +30,10 @@ def convert_frame(frame, sample=1.0):
     '''
     Convert frame to grayscale and resize
     '''
-    return cv2.resize(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY),
-                      None, fx=sample, fy=sample)
+    return cv2.cvtColor(cv2.resize(frame, None, fx=sample,
+                                   fy=sample), cv2.COLOR_BGR2GRAY)
 
-def compute_flow(frames, polar=False):
+def compute_flow(frames, polar=False, pbar=False):
     # initialization
     n_frame = frames.shape[0]
 
@@ -36,7 +44,7 @@ def compute_flow(frames, polar=False):
         magnitude = np.zeros((n_frame - 1, *prev_frame.shape))
         angle = np.zeros((n_frame - 1, *prev_frame.shape))
 
-    for i in range(1, n_frame):
+    for i in tqdm(range(1, n_frame), disable=not pbar):
         frame = frames[i]
 
         # compute dense optical flow using Farneback method
