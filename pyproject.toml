@@ -12,10 +12,12 @@ matplotlib = "^3.9.3"
 pyqt5 = "^5.15.11"
 opencv-python-headless = "^4.10.0.84"
 tqdm = "^4.67.1"
+pandas = "^2.2.3"
 
 
 [tool.poetry.group.dev.dependencies]
 jupyterlab = "^4.3.2"
+seaborn = "^0.13.2"
 
 [build-system]
 requires = ["poetry-core"]
