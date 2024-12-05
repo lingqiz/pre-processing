@@ -100,7 +100,7 @@ class ZaberData():
 
         dx = self.dx_zaber[t0_index:t1_index]
         dy = self.dy_zaber[t0_index:t1_index]
-        t = self.zaber_t[t0_index:t1_index]
+        t = self.zaber_t[t0_index:t1_index] - t0
 
         return MotionData(dx, dy, 0, t), t0, t1
 
