@@ -103,3 +103,13 @@ class ZaberData():
         t = self.zaber_t[t0_index:t1_index]
 
         return MotionData(dx, dy, 0, t), t0, t1
+
+def compute_lag(zaber_path, video_path, t0, length):
+    zaber = ZaberData(zaber_path)
+    zaber_motion, t0, t1 = zaber.get_motion(start=t0, length=length)
+
+    video = VideoData(video_path, step=4)
+    optical_flow = video.get_motion(start=t0, length=t1-t0)
+
+    corr, lags = cross_correlate(optical_flow, zaber_motion, combine=True)
+    return float(lags[np.argmax(corr)])
