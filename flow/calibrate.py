@@ -159,7 +159,7 @@ def exclude_outliers(t0, all_lag, sd_scale=3, time_thres=0.25):
 
     t0 = t0[indice]
     all_lag = all_lag[indice]
-    print('%d Point are Excluded (outside 3 s.d.)' % np.sum(~indice))
+    print('%d Point(s) Excluded (outside 3 s.d.)' % np.sum(~indice))
 
     # exclude outliers with derivative
     # with derivative
@@ -167,6 +167,6 @@ def exclude_outliers(t0, all_lag, sd_scale=3, time_thres=0.25):
     indice = np.where(dlag > time_thres)[0] + 1
     t0 = np.delete(t0, indice)
     all_lag = np.delete(all_lag, indice)
-    print('%d Point are Excluded (due to large derivative)' % len(indice))
+    print('%d Point(s) Excluded (due to large derivative)' % len(indice))
 
     return t0, all_lag
