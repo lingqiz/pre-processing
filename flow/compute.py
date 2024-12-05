@@ -6,7 +6,7 @@ def get_frames(video, start, end, sample=1.0, step=1, fr=120):
     '''
     Get frames from start (sec) to end (sec) from the video
     '''
-    start_index = start * fr
+    start_index = int(start * fr)
     video.set(cv2.CAP_PROP_POS_FRAMES, start_index)
 
     frames = []
