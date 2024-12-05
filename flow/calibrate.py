@@ -85,6 +85,9 @@ class VideoData():
 
         return MotionData(dx_bar, dy_bar, self.dt)
 
+    def release(self):
+        self.video.release()
+
 class ZaberData():
     def __init__(self, data_path):
         data_frame = pd.read_csv(data_path, low_memory=False)
@@ -118,6 +121,52 @@ def compute_lag(zaber_path, video_path, t0, length):
 
     video = VideoData(video_path, step=4)
     optical_flow = video.get_motion(start=t0, length=t1-t0)
+    video.release()
 
     corr, lags = cross_correlate(optical_flow, zaber_motion, combine=True)
     return float(lags[np.argmax(corr)])
+
+def calib_video(zaber_path, video_path, n_point=60, window=30, exclude=True):
+    # find the maximum length
+    zaber = ZaberData(zaber_path)
+    zaber_max = zaber.zaber_t[-1]
+
+    video = VideoData(video_path, step=4)
+    video_max = video.video.get(cv2.CAP_PROP_FRAME_COUNT) / video.fr
+    video.release()
+
+    t_max = min(zaber_max, video_max) - window * 2
+
+    # run calibration along anchor points t0
+    t0 = np.linspace(window, t_max, n_point)
+    all_lag = np.zeros_like(t0, dtype=float)
+
+    for i in tqdm(range(len(t0))):
+        all_lag[i] = compute_lag(zaber_path, video_path, t0[i], window)
+
+    # exclude outliers
+    if exclude:
+        t0, all_lag = exclude_outliers(t0, all_lag)
+
+    # final result
+    return t0, all_lag
+
+def exclude_outliers(t0, all_lag, sd_scale=3, time_thres=0.25):
+    # exclude outliers with s.d.
+    lag_mean = np.mean(all_lag)
+    lag_sd = np.std(all_lag)
+    indice = np.abs(all_lag - lag_mean) < sd_scale * lag_sd
+
+    t0 = t0[indice]
+    all_lag = all_lag[indice]
+    print('%d Point are Excluded (outside 3 s.d.)' % np.sum(~indice))
+
+    # exclude outliers with derivative
+    # with derivative
+    dlag = np.abs(np.diff(all_lag))
+    indice = np.where(dlag > time_thres)[0] + 1
+    t0 = np.delete(t0, indice)
+    all_lag = np.delete(all_lag, indice)
+    print('%d Point are Excluded (large derivative)' % len(indice))
+
+    return t0, all_lag
