@@ -66,9 +66,15 @@ def compute_flow(frames, polar=False, pbar=False):
 
     return delta
 
-def average_flow(delta):
+def average_flow(delta, flip_x=True, flip_y=True):
     dx_bar = np.mean(delta[:, :, :, 0], axis=(1, 2))
-    dy_bar = - np.mean(delta[:, :, :, 1], axis=(1, 2))
+    dy_bar = np.mean(delta[:, :, :, 1], axis=(1, 2))
+
+    if flip_x:
+        dx_bar = -dx_bar
+
+    if flip_y:
+        dy_bar = -dy_bar
 
     return dx_bar, dy_bar
 
@@ -78,7 +84,7 @@ def flow_rgb(magnitude, angle):
     '''
     hsv = np.zeros((*magnitude.shape, 3), dtype=np.uint8)
     hsv[..., 1] = 255
-    hsv[..., 0] = angle * 180 / np.pi / 2 # openCV uses 0-180 degrees for hue angle
+    hsv[..., 0] = angle * 180 / np.pi / 2 # openCV uses 0 - 180 degrees for hue angle
     hsv[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
 
     # Convert HSV to RGB for visualization

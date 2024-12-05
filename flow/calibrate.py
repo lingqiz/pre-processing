@@ -63,6 +63,14 @@ class VideoData():
             # raise an error if the video file cannot be opened
             raise ValueError("Error: Cannot open video file.")
 
+        # flip y-axis for motion
+        if video_path[-3:] == 'avi':
+            self.flip_x = False
+            self.flip_y = True
+        elif video_path[-3:] == 'mp4':
+            self.flip_x = True
+            self.flip_y = False
+
         self.dsp = dsp
         self.step = step
         self.fr = fr
@@ -73,7 +81,7 @@ class VideoData():
                             self.dsp, self.step, self.fr)
 
         delta = compute_flow(frames)
-        dx_bar, dy_bar = average_flow(delta)
+        dx_bar, dy_bar = average_flow(delta, self.flip_x, self.flip_y)
 
         return MotionData(dx_bar, dy_bar, self.dt)
 
