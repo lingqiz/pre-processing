@@ -159,7 +159,7 @@ def exclude_outliers(t0, all_lag, sd_scale=3, time_thres=0.25):
 
     t0 = t0[indice]
     all_lag = all_lag[indice]
-    print('%d Point(s) Excluded (outside 3 s.d.)' % np.sum(~indice))
+    print('%d Point(s) Excluded (outside s.d. range)' % np.sum(~indice))
 
     # exclude outliers with derivative
     # with derivative
