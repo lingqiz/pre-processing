@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from flow import *
+from flow.compute import *
 
 # downsample factor
 factor = 0.25

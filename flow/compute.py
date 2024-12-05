@@ -66,6 +66,12 @@ def compute_flow(frames, polar=False, pbar=False):
 
     return delta
 
+def average_flow(delta):
+    dx_bar = np.mean(delta[:, :, :, 0], axis=(1, 2))
+    dy_bar = - np.mean(delta[:, :, :, 1], axis=(1, 2))
+
+    return dx_bar, dy_bar
+
 def flow_rgb(magnitude, angle):
     '''
     Convert optical flow to RGB for visualization
