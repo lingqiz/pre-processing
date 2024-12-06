@@ -133,13 +133,14 @@ def compute_lag(zaber_path, video_path, t0, length):
 
     # compute lag using cross-correlation
     corr, lags = cross_correlate(optical_flow, zaber_motion, combine=True)
+    corr_val = np.max(corr)
     lag = float(lags[np.argmax(corr)])
 
     # seek the corresponding video and zaber frame
     zaber_index, zaber_time = zaber.get_frame(t0 - lag)
     video_index = video.get_frame(zaber_time + lag)
 
-    return lag, video_index, zaber_index
+    return lag, video_index, zaber_index, corr_val
 
 def calib_video(zaber_path, video_path, n_point=60, window=30, exclude=True):
     # find the maximum length
@@ -158,12 +159,14 @@ def calib_video(zaber_path, video_path, n_point=60, window=30, exclude=True):
     all_lag = np.zeros_like(t0, dtype=float)
     video_index = np.zeros_like(t0, dtype=int)
     zaber_index = np.zeros_like(t0, dtype=int)
-    calibration = [all_lag, video_index, zaber_index]
+    corr_val = np.zeros_like(t0, dtype=float)
+    calibration = [all_lag, video_index,
+                   zaber_index, corr_val]
 
     for i in tqdm(range(len(t0))):
         # compute lag, video frame and the corresponding zaber frame
         calib_result = compute_lag(zaber_path, video_path, t0[i], window)
-        for j in range(3):
+        for j in range(len(calibration)):
             calibration[j][i] = calib_result[j]
 
     # exclude outliers
