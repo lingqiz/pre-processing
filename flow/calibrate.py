@@ -85,6 +85,9 @@ class VideoData():
 
         return MotionData(dx_bar, dy_bar, self.dt)
 
+    def get_frame(self, t):
+        return int(t * self.fr)
+
     def release(self):
         self.video.release()
 
@@ -115,6 +118,11 @@ class ZaberData():
 
         return MotionData(dx, dy, 0, t), t0, t1
 
+    def get_frame(self, t):
+        # find t0 in zaber_t cloest to start
+        index = int(np.argmin(np.abs(self.zaber_t - t)))
+        return index, self.zaber_t[index]
+
 def compute_lag(zaber_path, video_path, t0, length):
     zaber = ZaberData(zaber_path)
     zaber_motion, t0, t1 = zaber.get_motion(start=t0, length=length)
@@ -123,8 +131,15 @@ def compute_lag(zaber_path, video_path, t0, length):
     optical_flow = video.get_motion(start=t0, length=t1-t0)
     video.release()
 
+    # compute lag using cross-correlation
     corr, lags = cross_correlate(optical_flow, zaber_motion, combine=True)
-    return float(lags[np.argmax(corr)])
+    lag = float(lags[np.argmax(corr)])
+
+    # seek the corresponding video and zaber frame
+    zaber_index, zaber_time = zaber.get_frame(t0 - lag)
+    video_index = video.get_frame(zaber_time + lag)
+
+    return lag, video_index, zaber_index
 
 def calib_video(zaber_path, video_path, n_point=60, window=30, exclude=True):
     # find the maximum length
@@ -139,26 +154,36 @@ def calib_video(zaber_path, video_path, n_point=60, window=30, exclude=True):
 
     # run calibration along anchor points t0
     t0 = np.linspace(window, t_max, n_point)
+
     all_lag = np.zeros_like(t0, dtype=float)
+    video_index = np.zeros_like(t0, dtype=int)
+    zaber_index = np.zeros_like(t0, dtype=int)
+    calibration = [all_lag, video_index, zaber_index]
 
     for i in tqdm(range(len(t0))):
-        all_lag[i] = compute_lag(zaber_path, video_path, t0[i], window)
+        # compute lag, video frame and the corresponding zaber frame
+        calib_result = compute_lag(zaber_path, video_path, t0[i], window)
+        for j in range(3):
+            calibration[j][i] = calib_result[j]
 
     # exclude outliers
     if exclude:
-        t0, all_lag = exclude_outliers(t0, all_lag)
+        t0, calibration = exclude_outliers(t0, calibration)
 
     # final result
-    return t0, all_lag
+    return t0, calibration
 
-def exclude_outliers(t0, all_lag, sd_scale=3, time_thres=0.25):
+def exclude_outliers(t0, calibration, sd_scale=3, time_thres=0.25):
+    all_lag = calibration[0]
+
     # exclude outliers with s.d.
     lag_mean = np.mean(all_lag)
     lag_sd = np.std(all_lag)
     indice = np.abs(all_lag - lag_mean) < sd_scale * lag_sd
 
     t0 = t0[indice]
-    all_lag = all_lag[indice]
+    for i in range(len(calibration)):
+        calibration[i] = calibration[i][indice]
     print('%d Point(s) Excluded (outside s.d. range)' % np.sum(~indice))
 
     # exclude outliers with derivative
@@ -166,7 +191,8 @@ def exclude_outliers(t0, all_lag, sd_scale=3, time_thres=0.25):
     dlag = np.abs(np.diff(all_lag))
     indice = np.where(dlag > time_thres)[0] + 1
     t0 = np.delete(t0, indice)
-    all_lag = np.delete(all_lag, indice)
+    for i in range(len(calibration)):
+        calibration[i] = np.delete(calibration[i], indice)
     print('%d Point(s) Excluded (due to large derivative)' % len(indice))
 
-    return t0, all_lag
+    return t0, calibration
