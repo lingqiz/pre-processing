@@ -26,7 +26,7 @@ output_path = os.path.join(HS_BASE, args.hs_name[:-4] + '_calib.csv')
 print('Calibrating', args.hs_name, 'with', zaber_full)
 
 # run calibration
-t0, calibration = calib_video(zaber_path, video_path)
+t0, calibration = calib_video(zaber_path, video_path, pbar=False)
 
 # plot calibration results
 fig, axs = plt.subplots(1, 2, figsize=(12, 5))
