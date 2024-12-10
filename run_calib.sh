@@ -2,7 +2,7 @@
 
 # Check and create the directory if it doesn't exist
 tmp_path="~/.tmp/hs_align"
-[ -d "$dir_path" ] || mkdir -p "$dir_path"
+[ -d "$tmp_path" ] || mkdir -p "$tmp_path"
 
 echo "Job start: $(date)"
 
