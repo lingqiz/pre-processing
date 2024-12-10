@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Check and create the directory if it doesn't exist
+tmp_path="~/.tmp/hs_align"
+[ -d "$dir_path" ] || mkdir -p "$dir_path"
+
 echo "Job start: $(date)"
 
 # Specify the file to read
