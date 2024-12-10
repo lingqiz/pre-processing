@@ -166,7 +166,7 @@ def calib_video(zaber_path, video_path,
     calibration = [all_lag, video_index,
                    zaber_index, corr_val]
 
-    for i in tqdm(range(len(t0)), disable=not pbar):
+    for i in tqdm(range(len(t0)), disable=not pbar, miniters=5):
         # compute lag, video frame and the corresponding zaber frame
         calib_result = compute_lag(zaber_path, video_path, t0[i], window)
         for j in range(len(calibration)):
