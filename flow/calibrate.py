@@ -179,11 +179,12 @@ def calib_video(zaber_path, video_path,
     return t0, calibration
 
 def exclude_outliers(t0, calibration, threshold=0.30):
-    indice = np.where(calibration[3] >= threshold)[0]
+    indice = calibration[3] >= threshold
+    index = np.where(indice)[0]
 
-    t0 = t0[indice]
+    t0 = t0[index]
     for i in range(len(calibration)):
-        calibration[i] = calibration[i][indice]
+        calibration[i] = calibration[i][index]
 
     print('%d Point(s) Excluded (correlation < %.2f)' % \
           (np.sum(~indice), threshold))
