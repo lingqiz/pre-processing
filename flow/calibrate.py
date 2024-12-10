@@ -142,7 +142,9 @@ def compute_lag(zaber_path, video_path, t0, length):
 
     return lag, video_index, zaber_index, corr_val
 
-def calib_video(zaber_path, video_path, n_point=60, window=30, exclude=True):
+def calib_video(zaber_path, video_path,
+                n_point=60, window=60, exclude=True):
+
     # find the maximum length
     zaber = ZaberData(zaber_path)
     zaber_max = zaber.zaber_t[-1]
@@ -176,7 +178,22 @@ def calib_video(zaber_path, video_path, n_point=60, window=30, exclude=True):
     # final result
     return t0, calibration
 
-def exclude_outliers(t0, calibration, sd_scale=3, time_thres=0.25):
+def exclude_outliers(t0, calibration, threshold=0.30):
+    indice = np.where(calibration[3] >= threshold)[0]
+
+    t0 = t0[indice]
+    for i in range(len(calibration)):
+        calibration[i] = calibration[i][indice]
+
+    print('%d Point(s) Excluded (correlation < %.2f)' % \
+          (np.sum(~indice), threshold))
+
+    return t0, calibration
+
+def exclude_outliers_legacy(t0, calibration, sd_scale=3, time_thres=0.25):
+    '''
+    Exclude outliers using standard deviation and derivative
+    '''
     all_lag = calibration[0]
 
     # exclude outliers with s.d.
