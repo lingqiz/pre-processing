@@ -8,6 +8,7 @@ from flow.calibrate import calib_video
 
 ZABER_BASE = '/groups/dennis/dennislab/data/processed_data'
 HS_BASE = '/groups/dennis/dennislab/data/hs_cam'
+USER_PATH = os.path.expanduser('~/video_alignment')
 
 # zaber and video paths
 parser = argparse.ArgumentParser()
@@ -40,8 +41,10 @@ axs[1].plot(t0, calibration[3], 'o-')
 axs[1].set_xlabel('t0 (s)')
 axs[1].set_ylabel('Correlation')
 
+# save plot
 plt.tight_layout()
-plt.show()
+plt.savefig(os.path.join(USER_PATH, args.hs_name[:-4] + '_calib.png'))
+plt.close(fig)
 
 # save calibration (write to csv file)
 header = ['lag', 'video_index', 'zaber_index', 'correlation']
