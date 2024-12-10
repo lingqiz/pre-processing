@@ -8,7 +8,7 @@ from flow.calibrate import calib_video
 
 ZABER_BASE = '/groups/dennis/dennislab/data/processed_data'
 HS_BASE = '/groups/dennis/dennislab/data/hs_cam'
-USER_PATH = os.path.expanduser('~/video_alignment')
+USER_PATH = os.path.expanduser('~/hs_align')
 
 # zaber and video paths
 parser = argparse.ArgumentParser()
