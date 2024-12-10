@@ -1,4 +1,4 @@
-import cv2
+import cv2, os
 import numpy as np
 import matplotlib.pyplot as plt
 from flow.compute import *
@@ -7,7 +7,9 @@ from flow.compute import *
 factor = 0.25
 
 # Path to the video file
+HS_BASE = '/groups/dennis/dennislab/data/hs_cam'
 video_path = "231004_101805_video.avi"
+video_path = os.path.join(HS_BASE, video_path)
 
 # Open the video file
 video = cv2.VideoCapture(video_path)
