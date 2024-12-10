@@ -42,9 +42,11 @@ axs[1].set_xlabel('t0 (s)')
 axs[1].set_ylabel('Correlation')
 
 # save plot
+fig_path = os.path.join(USER_PATH, args.hs_name[:-4] + '_calib.png')
 plt.tight_layout()
-plt.savefig(os.path.join(USER_PATH, args.hs_name[:-4] + '_calib.png'))
+plt.savefig(fig_path)
 plt.close(fig)
+print('Save calibration plot to', fig_path)
 
 # save calibration (write to csv file)
 header = ['lag', 'video_index', 'zaber_index', 'correlation']
