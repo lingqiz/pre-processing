@@ -123,27 +123,27 @@ class ZaberData():
         index = int(np.argmin(np.abs(self.zaber_t - t)))
         return index, self.zaber_t[index]
 
-def compute_lag(zaber_path, video_path, t0, length):
+def compute_lag(zaber_path, video_path, t0, length, init=0):
     zaber = ZaberData(zaber_path)
     zaber_motion, t0, t1 = zaber.get_motion(start=t0, length=length)
 
     video = VideoData(video_path, step=4)
-    optical_flow = video.get_motion(start=t0, length=t1-t0)
-    video.release()
+    optical_flow = video.get_motion(start=t0+init, length=t1-t0) 
 
     # compute lag using cross-correlation
     corr, lags = cross_correlate(optical_flow, zaber_motion, combine=True)
     corr_val = np.max(corr)
-    lag = float(lags[np.argmax(corr)])
+    lag = init + float(lags[np.argmax(corr)])
 
     # seek the corresponding video and zaber frame
     zaber_index, zaber_time = zaber.get_frame(t0 - lag)
     video_index = video.get_frame(zaber_time + lag)
 
+    video.release()
     return lag, video_index, zaber_index, corr_val
 
 def calib_video(zaber_path, video_path,
-                n_point=60, window=60,
+                n_point=60, window=45,
                 exclude=True, pbar=True):
 
     # find the maximum length
@@ -153,11 +153,21 @@ def calib_video(zaber_path, video_path,
     video = VideoData(video_path, step=4)
     video_max = video.video.get(cv2.CAP_PROP_FRAME_COUNT) / video.fr
     video.release()
-
     t_max = min(zaber_max, video_max) - window * 2
+    
+    # initial guess
+    run_flag = True
+    init_window = window
+    while run_flag:
+        init_lag, _, _, corr = compute_lag(zaber_path, video_path, 0, init_window)
+        if corr >= 0.5:
+            run_flag = False
+        else:
+            init_window *= 2
+    print('Initial Lag: %.3f (sec)' % init_lag)
 
     # run calibration along anchor points t0
-    t0 = np.linspace(window, t_max, n_point)
+    t0 = np.linspace(init_window, t_max, n_point)
 
     all_lag = np.zeros_like(t0, dtype=float)
     video_index = np.zeros_like(t0, dtype=int)
@@ -168,7 +178,7 @@ def calib_video(zaber_path, video_path,
 
     for i in tqdm(range(len(t0)), disable=not pbar, miniters=5):
         # compute lag, video frame and the corresponding zaber frame
-        calib_result = compute_lag(zaber_path, video_path, t0[i], window)
+        calib_result = compute_lag(zaber_path, video_path, t0[i], window, init_lag)
         for j in range(len(calibration)):
             calibration[j][i] = calib_result[j]
 
