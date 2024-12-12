@@ -11,7 +11,7 @@ input_file="file_names.txt"
 
 # Read the file line by line
 while IFS= read -r line; do
-    command="poetry run python3 run_calib.py $line"
+    command="poetry run python3 -u run_calib.py $line"
     eval "$command"
 done < "$input_file"
 
