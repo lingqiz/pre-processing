@@ -1,15 +1,15 @@
 from flow.constants import ZABER_BASE, HS_BASE
 from datetime import datetime
-import os 
+import os
 
 '''
-Generate a list of files to be processed for 
+Generate a list of files to be processed for
 p16 and p18 mice based on the start and end date
 '''
 
 # all mp4 files
-files = [file for file in os.listdir(HS_BASE) 
-         if (os.path.isfile(os.path.join(HS_BASE, file)) and 
+files = [file for file in os.listdir(HS_BASE)
+         if (os.path.isfile(os.path.join(HS_BASE, file)) and
              file.endswith('_hs.mp4'))]
 
 # file time
@@ -22,7 +22,7 @@ date_start = datetime.strptime('20240304', '%Y%m%d')
 date_end = datetime.strptime('20240528', '%Y%m%d')
 
 # filter files based on start and end date
-files = [file for file, ft in zip(files, file_time) 
+files = [file for file, ft in zip(files, file_time)
          if (ft >= date_start and ft <= date_end)]
 file_time = [ft for ft in file_time if (ft >= date_start and ft <= date_end)]
 
@@ -30,7 +30,7 @@ file_time = [ft for ft in file_time if (ft >= date_start and ft <= date_end)]
 animal = 'p16p17p18'
 csv_path = os.path.join(ZABER_BASE, animal)
 csv_file = [file for file in os.listdir(csv_path)
-            if (os.path.isfile(os.path.join(csv_path, file)) and 
+            if (os.path.isfile(os.path.join(csv_path, file)) and
                 file.endswith('.csv'))]
 
 csv_time = []
@@ -45,14 +45,18 @@ for fl, ft in zip(files, file_time):
     # find the closest time in csv_time to ft
     time_diff = [abs(ft - ct) for ct in csv_time]
     min_index = time_diff.index(min(time_diff))
-    
+
+    # skil p17
     csv_str = csv_file[min_index]
     if csv_str[20:23] == 'p17':
         continue
-    
+
+    # skil large time difference (> 30 minute, likely mismatch)
+    if time_diff[min_index].seconds > 1800:
+        continue
+
     # file string
     file_str = '%s %s %s' % (animal, csv_str[:23], fl)
-    
+
     # write to file
     file.write(file_str + '\n')
-    
