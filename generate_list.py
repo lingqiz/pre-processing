@@ -2,6 +2,11 @@ from flow.constants import ZABER_BASE, HS_BASE
 from datetime import datetime
 import os 
 
+'''
+Generate a list of files to be processed for 
+p16 and p18 mice based on the start and end date
+'''
+
 # all mp4 files
 files = [file for file in os.listdir(HS_BASE) 
          if (os.path.isfile(os.path.join(HS_BASE, file)) and 
@@ -41,8 +46,12 @@ for fl, ft in zip(files, file_time):
     time_diff = [abs(ft - ct) for ct in csv_time]
     min_index = time_diff.index(min(time_diff))
     
+    csv_str = csv_file[min_index]
+    if csv_str[20:23] == 'p17':
+        continue
+    
     # file string
-    file_str = '%s %s %s' % (animal, csv_file[min_index][:23], fl)
+    file_str = '%s %s %s' % (animal, csv_str[:23], fl)
     
     # write to file
     file.write(file_str + '\n')
