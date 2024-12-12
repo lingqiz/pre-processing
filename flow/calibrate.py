@@ -157,7 +157,7 @@ def calib_video(zaber_path, video_path,
 
     # initial guess
     run_flag = True
-    t_max = 360
+    init_max = 360
     init_window = window
     while run_flag:
         init_lag, _, _, corr = compute_lag(zaber_path, video_path, 0, init_window)
@@ -166,7 +166,7 @@ def calib_video(zaber_path, video_path,
         else:
             init_window *= 2
 
-        if init_window > t_max:
+        if init_window > init_max:
             print('Warning: initial calibration failed')
             return None
 
