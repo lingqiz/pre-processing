@@ -128,7 +128,7 @@ def compute_lag(zaber_path, video_path, t0, length, init=0):
     zaber_motion, t0, t1 = zaber.get_motion(start=t0, length=length)
 
     video = VideoData(video_path, step=4)
-    optical_flow = video.get_motion(start=t0+init, length=t1-t0) 
+    optical_flow = video.get_motion(start=t0+init, length=t1-t0)
 
     # compute lag using cross-correlation
     corr, lags = cross_correlate(optical_flow, zaber_motion, combine=True)
@@ -154,9 +154,10 @@ def calib_video(zaber_path, video_path,
     video_max = video.video.get(cv2.CAP_PROP_FRAME_COUNT) / video.fr
     video.release()
     t_max = min(zaber_max, video_max) - window * 2
-    
+
     # initial guess
     run_flag = True
+    t_max = 360
     init_window = window
     while run_flag:
         init_lag, _, _, corr = compute_lag(zaber_path, video_path, 0, init_window)
@@ -164,6 +165,11 @@ def calib_video(zaber_path, video_path,
             run_flag = False
         else:
             init_window *= 2
+
+        if init_window > t_max:
+            print('Warning: initial calibration failed')
+            return None
+
     print('Initial Lag: %.3f (sec)' % init_lag)
 
     # run calibration along anchor points t0

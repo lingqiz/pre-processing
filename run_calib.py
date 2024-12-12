@@ -23,29 +23,31 @@ output_path = os.path.join(HS_BASE, args.hs_name[:-4] + '_calib.csv')
 print('\nCalibrating', args.hs_name, 'with', zaber_full)
 
 # run calibration
-t0, calibration = calib_video(zaber_path, video_path, pbar=True)
+result = calib_video(zaber_path, video_path, pbar=True)
+if result is not None:
+    t0, calibration = result
 
-# plot calibration results
-fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+    # plot calibration results
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
 
-# lag
-axs[0].plot(t0, calibration[0], 'o-')
-axs[0].set_xlabel('t0 (s)')
-axs[0].set_ylabel('Lag (s)')
+    # lag
+    axs[0].plot(t0, calibration[0], 'o-')
+    axs[0].set_xlabel('t0 (s)')
+    axs[0].set_ylabel('Lag (s)')
 
-# correlation r value
-axs[1].plot(t0, calibration[3], 'o-')
-axs[1].set_xlabel('t0 (s)')
-axs[1].set_ylabel('Correlation')
+    # correlation r value
+    axs[1].plot(t0, calibration[3], 'o-')
+    axs[1].set_xlabel('t0 (s)')
+    axs[1].set_ylabel('Correlation')
 
-# save plot
-fig_path = os.path.join(TMP_PATH, args.hs_name[:-4] + '_calib.png')
-plt.tight_layout()
-plt.savefig(fig_path)
-plt.close(fig)
-print('Save calibration plot to', fig_path)
+    # save plot
+    fig_path = os.path.join(TMP_PATH, args.hs_name[:-4] + '_calib.png')
+    plt.tight_layout()
+    plt.savefig(fig_path)
+    plt.close(fig)
+    print('Save calibration plot to', fig_path)
 
-# save calibration (write to csv file)
-header = ['lag', 'video_index', 'zaber_index', 'correlation']
-df = pd.DataFrame({h: calibration[i] for i, h in enumerate(header)})
-df.to_csv(output_path, index=False)
+    # save calibration (write to csv file)
+    header = ['lag', 'video_index', 'zaber_index', 'correlation']
+    df = pd.DataFrame({h: calibration[i] for i, h in enumerate(header)})
+    df.to_csv(output_path, index=False)
