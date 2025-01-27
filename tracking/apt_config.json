@@ -1,0 +1,248 @@
+{
+    "ProjName": "Tracking1219",
+    "ProjectFile": "/groups/dennis/dennislab/data/APT_Label/Tracking0121.lbl",
+    "Config": {
+        "MultiAnimal": 0,
+        "NumViews": 1,
+        "NumLabelPoints": 37,
+        "NumChans": 1,
+        "HasTrx": false,
+        "HasCrops": false
+    },
+    "MovieInfo": {
+        "NumRows": 1024,
+        "NumCols": 1024
+    },
+    "MovieCropRois": [],
+    "TrackerData": {
+        "sPrmAll": {
+            "ROOT": {
+                "ImageProcessing": {
+                    "BackSub": {
+                        "Use": false,
+                        "BGType": "dark on light",
+                        "BGReadFcn": ""
+                    },
+                    "HistEq": {
+                        "Use": false
+                    },
+                    "MultiTarget": {
+                        "NeighborMask": {
+                            "Use": false,
+                            "SegmentMethod": "Conn. Comp",
+                            "FGThresh": 4
+                        }
+                    }
+                },
+                "Track": {
+                    "NFramesSmall": 5,
+                    "NFramesLarge": 10,
+                    "NFramesNeighborhood": 100,
+                    "ChunkSize": 3000
+                },
+                "CPR": {
+                    "NumMajorIter": 50,
+                    "NumMinorIter": 30,
+                    "Ferns": {
+                        "Depth": 5,
+                        "Threshold": {
+                            "Lo": -0.2,
+                            "Hi": 0.2
+                        },
+                        "RegFactor": 0.01
+                    },
+                    "Feature": {
+                        "Type": "2lm",
+                        "Radius": 1.5,
+                        "ABRatio": 2,
+                        "Metatype": "diff",
+                        "NGenerate": 400,
+                        "Nsample_std": 1000,
+                        "Nsample_cor": 5000
+                    },
+                    "RotCorrection": {
+                        "OrientationType": "fixed",
+                        "HeadPoint": 1,
+                        "TailPoint": 2
+                    },
+                    "Replicates": {
+                        "NrepTrain": 50,
+                        "NrepTrack": 50,
+                        "DoPtJitter": true,
+                        "PtJitterFac": 12,
+                        "DoBBoxJitter": true,
+                        "AugJitterFac": 16,
+                        "AugUseFF": false
+                    },
+                    "Prune": {
+                        "Method": "maxdensity",
+                        "DensitySigma": 5,
+                        "PositionLambdaFactor": 1
+                    }
+                },
+                "MultiAnimal": {
+                    "multi_loss_mask": true,
+                    "multi_crop_ims": false,
+                    "multi_crop_im_sz": 1280,
+                    "multi_match_dist": 20,
+                    "Detect": {
+                        "BBox": {
+                            "MinAspectRatio": 0.3
+                        },
+                        "multi_only_ht": false,
+                        "ht_pts": [
+                            0,
+                            0
+                        ]
+                    },
+                    "TargetCrop": {
+                        "ManualRadius": 640,
+                        "AlignUsingTrxTheta": false,
+                        "PadBkgd": 0,
+                        "Radius": 640
+                    },
+                    "LossMask": {
+                        "MinAspectRatio": 0.3,
+                        "PadFactor": 1.5,
+                        "PadFloor": 32,
+                        "AlignHeadTail": false
+                    },
+                    "Track": {
+                        "min_n_animals": 0,
+                        "max_n_animals": 30,
+                        "TrackletStitch": {
+                            "link_stage": "second",
+                            "link_id": false,
+                            "link_maxcost_heuristic": "secondorder",
+                            "link_maxcost_mult": 1,
+                            "link_maxcost_prctile": 95,
+                            "link_maxframes_delete": 10,
+                            "link_maxframes_missed": 10,
+                            "link_strict_match_thres": 2,
+                            "link_id_training_iters": 100000,
+                            "link_id_tracklet_samples": 25,
+                            "link_id_rescale": 1,
+                            "link_id_batch_size": 16,
+                            "link_id_mining_steps": 10,
+                            "link_id_cropsz": -1
+                        }
+                    },
+                    "is_multi": false
+                },
+                "DeepTrack": {
+                    "Saving": {
+                        "save_step": 1000,
+                        "display_step": 50,
+                        "maxckpt": 5
+                    },
+                    "ImageProcessing": {
+                        "scale": 1,
+                        "adjustContrast": false,
+                        "clahe_grid_size": 20,
+                        "normalize": false,
+                        "flipud": false,
+                        "imax": 255
+                    },
+                    "GradientDescent": {
+                        "dl_steps": 250000,
+                        "batch_size": 16,
+                        "learning_rate_multiplier": 1,
+                        "lr_drop_step": 0.15,
+                        "cos_steps": 2,
+                        "decay_steps": 25000,
+                        "gamma": 0.1,
+                        "num_test": 24,
+                        "normalize_loss_batch": false
+                    },
+                    "DataAugmentation": {
+                        "rrange": 150,
+                        "trange": 100,
+                        "scale_factor_range": 1.2,
+                        "crange": 0.1,
+                        "brange": 0.1,
+                        "horz_flip": false,
+                        "vert_flip": false,
+                        "perturb_color": false,
+                        "check_bounds_distort": true,
+                        "flipLandmarkMatches": ""
+                    },
+                    "LossFunction": {
+                        "label_blur_rad": 3
+                    },
+                    "GRONe": {
+                        "mdn_base_lr": 0.0001,
+                        "mdn_pred_dist": false,
+                        "ignore_occluded": false,
+                        "predict_occluded": true,
+                        "pretrain_freeze_bnorm": true,
+                        "mdn_resnet_source": "official_tf",
+                        "db_format": "coco"
+                    },
+                    "MSPN": {
+                        "ignore_occluded": false,
+                        "predict_occluded": false,
+                        "mmpose_net": "mspn",
+                        "mmpose_use_apt_augmentation": false,
+                        "db_format": "coco"
+                    },
+                    "DeepLabCut": {
+                        "dlc_intermediate_supervision": false,
+                        "dlc_intermediate_supervision_layer": 12,
+                        "dlc_location_refinement": true,
+                        "dlc_locref_huber_loss": true,
+                        "dlc_locref_loss_weight": 0.05,
+                        "dlc_locref_stdev": 7.2801,
+                        "dlc_use_apt_preprocess": true,
+                        "dlc_override_dlsteps": false
+                    },
+                    "DeepPoseKit": {
+                        "dpk_test": false
+                    },
+                    "OpenPose": {
+                        "op_base_lr": 4E-5,
+                        "op_param_hmap_thres": 0.1,
+                        "op_param_paf_thres": 0.05,
+                        "ignore_occluded": false,
+                        "op_hires_ndeconv": 0,
+                        "pretrain_freeze_bnorm": true,
+                        "affinity_graph": ""
+                    },
+                    "MDN": {
+                        "mdn_use_unet_loss": true,
+                        "mdn_base_lr": 0.0001,
+                        "mdn_pred_dist": false,
+                        "ignore_occluded": true,
+                        "predict_occluded": true,
+                        "pretrain_freeze_bnorm": true,
+                        "mdn_resnet_source": "official_tf"
+                    },
+                    "Unet": {
+                        "unet_base_lr": 0.0001
+                    },
+                    "MultiAnimalGRONe": {
+                        "db_format": "coco",
+                        "mdn_joint_layer_num": 3,
+                        "predict_occluded": true
+                    },
+                    "MultiAnimalOpenPose": {
+                        "op_base_lr": 4E-5,
+                        "op_param_hmap_thres": 0.1,
+                        "op_param_paf_thres": 0.05,
+                        "ignore_occluded": false,
+                        "op_hires_ndeconv": 0,
+                        "db_format": "tfrecord"
+                    },
+                    "MMDetect": {
+                        "db_format": "coco",
+                        "test": "test"
+                    }
+                },
+                "PostProcess": {
+                    "reconcile3dType": "triangulate"
+                }
+            }
+        },
+        "trnNetMode": "singleAnimal",
+        "trnNetTypeString": "deeplabcut"
+    }
+}
