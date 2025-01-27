@@ -9,3 +9,5 @@ Modify `file_names.txt` to specify input files, and run `bsub -n 64 -J video_ali
 Use `generate_list.py` to batch generate the list of videos and corresponding all_params file.
 
 #### Tracking high-res video with DLC
+Modify `track_names.txt` to specify input files   
+Run `python3 run_track.py` to launch tracking
