@@ -7,7 +7,7 @@ tmp_path="./.tmp"
 echo "Job start: $(date)"
 
 # Specify the file to read
-input_file="file_names.txt"
+input_file="./flow/file_names.txt"
 
 # Read the file line by line
 while IFS= read -r line; do
