@@ -11,6 +11,7 @@ Use `generate_list.py` to batch generate the list of videos and corresponding al
 #### Track high-res video with DLC
 Modify `track_names.txt` to specify input files
 Run `python3 run_track.py` to launch tracking
+Run `convert_trk.m` in MATLAB to convert trk to mat format
 
 #### Train / cross-validate DLC tracker
 Use `bash train.cmd index` for cross-validation training
