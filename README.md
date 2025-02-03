@@ -6,13 +6,14 @@
 
 *For Janelia cluster:*
 Modify `file_names.txt` to specify input files, and run `bsub -n 64 -J video_alignment -o ./.tmp/output.log './run_calib.sh'`   
+
 Use `generate_list.py` to batch generate the list of videos and corresponding all_params file.
 
 #### Track high-res video with DLC
-Modify `track_names.txt` to specify input files   
-Run `python3 run_track.py` to launch tracking   
-Run `convert_trk.m` in MATLAB to convert trk to mat format
+Modify `track_names.txt` to specify input files.   
+Run `python3 run_track.py` to launch tracking.   
+Run `convert_trk.m` in MATLAB to convert trk to mat format.
 
 #### Train / cross-validate DLC tracker
-Use `bash train.cmd index` for cross-validation training   
+Use `bash train.cmd index` for cross-validation training.   
 Training data under `/training/im`
