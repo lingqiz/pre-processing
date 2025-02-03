@@ -3,7 +3,7 @@ TRAIN_NAME=$1
 ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org "
     :;
     \"/groups/zhang/home/zhangl5/APT/matlab/repo_snapshot.sh\" \"/groups/zhang/home/zhangl5/APT\" > \
-    \"/groups/zhang/home/zhangl5/.apt/tp83bd26ed_bd19_4a57_af43_eedc4e8314b0/Tracking1219/20250202T134614_20250202T134617.aptsnapshot\";
+    \"/groups/zhang/home/zhangl5/Emily/Video_Process/.apt/train/train_${TRAIN_NAME}.aptsnapshot\";
 
     bsub -n 12 -gpu \"num=1\" -q gpu_h100 \
          -o \"/groups/zhang/home/zhangl5/Emily/Video_Process/.apt/train/train_${TRAIN_NAME}.log\" \
