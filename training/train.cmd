@@ -5,7 +5,7 @@ ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org "
     \"/groups/zhang/home/zhangl5/APT/matlab/repo_snapshot.sh\" \"/groups/zhang/home/zhangl5/APT\" > \
     \"/groups/zhang/home/zhangl5/.apt/tp83bd26ed_bd19_4a57_af43_eedc4e8314b0/Tracking1219/20250202T134614_20250202T134617.aptsnapshot\";
 
-    bsub -n 24 -gpu \"num=1\" -q gpu_h100 \
+    bsub -n 12 -gpu \"num=1\" -q gpu_h100 \
          -o \"/groups/zhang/home/zhangl5/Emily/Video_Process/.apt/train/train_${TRAIN_NAME}.log\" \
          -R \"affinity[core(1)]\" \
          -J train_${TRAIN_NAME} \
@@ -18,7 +18,7 @@ ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org "
                   '/groups/zhang/home/zhangl5/Emily/Video_Process/training/train_config.json' \
                   -name train_${TRAIN_NAME} \
                   -err_file '/groups/zhang/home/zhangl5/Emily/Video_Process/.apt/train/train_${TRAIN_NAME}.err' \
-                  -json_trn_file '/groups/zhang/home/zhangl5/Emily/Video_Process/training/labels.json' \
+                  -json_trn_file '/groups/zhang/home/zhangl5/Emily/Video_Process/training/cv/train_${TRAIN_NAME}.json' \
                   -conf_params \
                   -type deeplabcut \
                   -ignore_local 1 \
