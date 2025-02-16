@@ -1,6 +1,7 @@
 __pycache__
 .venv
 .apt
+.tmp
 *.avi
 *.mp4
 *.csv
