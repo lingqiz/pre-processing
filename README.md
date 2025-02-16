@@ -6,6 +6,7 @@
 
 *For Janelia cluster:*
 Modify `file_names.txt` to specify input files, and run `bsub -n 64 -J video_alignment -o ./.tmp/output.log './run_calib.sh'`   
+Note Python3.10 environment is located under `~/local` if python3.10 cannot be found.   
 
 Use `generate_list.py` to batch generate the list of videos and corresponding all_params file.
 
