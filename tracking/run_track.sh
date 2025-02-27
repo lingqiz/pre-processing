@@ -11,7 +11,6 @@ ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org \
     -type deeplabcut -model_files '/groups/zhang/home/zhangl5/Emily/Video_Process/tracking/0131_DLC/deepnet-673000' \
     -ignore_local 1 -cache '/groups/zhang/home/zhangl5/.apt/apt_tracking_temp_files' track \
     -config_file '/groups/zhang/home/zhangl5/Emily/Video_Process/tracking/apt_config.json' \
-    -conf_params batch_size 1024 \
     -out '/groups/dennis/dennislab/data/hs_cam/${VIDEO_NAME}.trk' \
     -mov '/groups/dennis/dennislab/data/hs_cam/${VIDEO_NAME}.mp4'\\\"\""
 
