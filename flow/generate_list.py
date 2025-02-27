@@ -24,7 +24,7 @@ for file in files:
     file_time.append(date_object)
 
 date_start = datetime.strptime('20240627', '%Y%m%d')
-date_end = datetime.strptime('20241003', '%Y%m%d')
+date_end = datetime.strptime('20241004', '%Y%m%d')
 
 # filter files based on start and end date
 files = [file for file, ft in zip(files, file_time)

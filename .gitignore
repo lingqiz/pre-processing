@@ -6,6 +6,7 @@ __pycache__
 *.mp4
 *.csv
 *.ipynb
+/flow/file_names.txt
 /tracking/track_names.txt
 /tracking/*_DLC/
 /training/cv/
