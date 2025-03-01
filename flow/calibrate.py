@@ -157,7 +157,7 @@ def calib_video(zaber_path, video_path,
 
     # initial guess
     run_flag = True
-    init_max = 360
+    init_max = 720
     init_window = window
     while run_flag:
         init_lag, _, _, corr = compute_lag(zaber_path, video_path, 0, init_window)
