@@ -23,8 +23,8 @@ for file in files:
     date_object = datetime.strptime(file[:15], '%Y%m%d_%H%M%S')
     file_time.append(date_object)
 
-date_start = datetime.strptime('20240627', '%Y%m%d')
-date_end = datetime.strptime('20241004', '%Y%m%d')
+date_start = datetime.strptime('20250203', '%Y%m%d')
+date_end = datetime.strptime('20250208', '%Y%m%d')
 
 # filter files based on start and end date
 files = [file for file, ft in zip(files, file_time)
@@ -32,7 +32,7 @@ files = [file for file, ft in zip(files, file_time)
 file_time = [ft for ft in file_time if (ft >= date_start and ft <= date_end)]
 
 # all_params file
-animal = 'p20p21'
+animal = 'p24p25p26p27p28'
 csv_path = os.path.join(ZABER_BASE, animal)
 csv_file = [file for file in os.listdir(csv_path)
             if (os.path.isfile(os.path.join(csv_path, file)) and
@@ -51,10 +51,10 @@ for fl, ft in zip(files, file_time):
     time_diff = [abs(ft - ct) for ct in csv_time]
     min_index = time_diff.index(min(time_diff))
 
-    # skip p19 and p22
+    # skip animal if needed
     csv_str = csv_file[min_index]
-    if (csv_str[20:23] == 'p19' or
-        csv_str[20:23] == 'p22'):
+    if (csv_str[20:23] == 'name1' or
+        csv_str[20:23] == 'name2'):
         continue
 
     # skil large time difference (> 30 minute, likely mismatch)
