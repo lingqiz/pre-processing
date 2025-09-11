@@ -39,7 +39,6 @@ def run_collect_files(all_params_base, csv_filename):
     script_path = os.path.join(os.path.dirname(__file__), 'collect_files.py')
 
     try:
-        print(f"Processing: {csv_filename}")
         result = subprocess.run([
             'python3', script_path, all_params_base, csv_filename
         ], capture_output=True, text=True, timeout=300)  # 5 minute timeout
@@ -92,7 +91,7 @@ def main():
     # Process each CSV file
     success_count = 0
     for i, csv_filename in enumerate(csv_files, 1):
-        print(f"\n[{i}/{len(csv_files)}] Processing: {csv_filename}")
+        print(f"\n[{i}/{len(csv_files)}] \n⚙️  Processing: {csv_filename}")
 
         try:
             run_collect_files(all_params_base, csv_filename)
