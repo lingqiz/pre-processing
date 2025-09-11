@@ -8,9 +8,8 @@ from datetime import datetime
 from utils import parse_filename, parse_datetime, find_closest_video
 
 # Get filename from command line argument
-all_params_base = '/groups/dennis/dennislab/data/processed_data/p16p17p18_ccf_all_params'
-ref_name = sys.argv[1]
-
+all_params_base = sys.argv[1]
+ref_name = sys.argv[2]
 
 # Extract information from the filename
 animal_name, date_time = parse_filename(ref_name)
@@ -128,9 +127,9 @@ if hs_video_files:
             pass
 
         # Find and copy related files with same prefix (.mat, .trk, _calib.csv)
-        # Extract prefix from original hs video name (remove _hs.mp4)
+        # Extract prefix from original hs video name (remove .mp4)
         original_hs_name = os.path.basename(closest_hs_video)
-        hs_prefix = original_hs_name.replace('_hs.mp4', '')
+        hs_prefix = original_hs_name.replace('.mp4', '')
 
         # Look for files with same prefix and different extensions
         related_extensions = ['.mat', '.trk', '_calib.csv']
