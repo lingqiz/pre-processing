@@ -1,3 +1,4 @@
+#!/bin/bash
 VIDEO_NAME=$1
 echo "Tracking video: ${VIDEO_NAME}"
 
