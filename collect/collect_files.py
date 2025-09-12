@@ -5,7 +5,7 @@ import sys
 import glob
 from datetime import timedelta
 from datetime import datetime
-from utils import parse_filename, parse_datetime, find_closest_video
+from utils import parse_filename, parse_datetime, find_closest_video, datetime_to_filename_format
 
 # Get filename from command line argument
 all_params_base = sys.argv[1]
@@ -14,6 +14,9 @@ ref_name = sys.argv[2]
 # Extract information from the filename
 animal_name, date_time = parse_filename(ref_name)
 datetime_obj = parse_datetime(date_time)
+
+# Create base prefix from original filename (2024-02-22T09_46_32_p16)
+base_prefix = f"{date_time}_{animal_name}"
 
 # Base Folder
 video_base = '/groups/dennis/dennislab/data/rig'
@@ -52,6 +55,7 @@ date_folder = datetime_obj.strftime('%Y%m%d')
 rig_date_folder = os.path.join(video_base, date_folder)
 
 rig_video_linked = False
+hs_cam_frames_linked = False
 # Find video files in the rig date folder
 if os.path.exists(rig_date_folder):
     # Look for video files matching the pattern video_basler_*.avi
@@ -70,18 +74,79 @@ if os.path.exists(rig_date_folder):
         # Create softlink to the closest video
         if closest_video:
             video_basename = os.path.basename(closest_video)
-            # Rename softlink to rig_YYYYMMDD_HHMMSS.avi
-            rig_link_name = f"rig_{date_folder}_{datetime_obj.strftime('%H%M%S')}.avi"
-            video_link_path = os.path.join(datetime_folder_path, rig_link_name)
 
-            # Create softlink (symbolic link)
-            try:
-                if not os.path.exists(video_link_path):
-                    os.symlink(closest_video, video_link_path)
-                rig_video_linked = True
-                video_basename = rig_link_name  # Update for display
-            except Exception:
-                pass
+            # Extract actual timestamp from matched video
+            rig_timestamp_str = extract_rig_timestamp(closest_video)
+            rig_datetime = datetime.fromisoformat(rig_timestamp_str.replace('_', ':'))
+
+            # Check for time mismatch
+            time_diff = abs((rig_datetime - datetime_obj).total_seconds())
+            if time_diff > 600:  # 10 minutes
+                print(f"❌ ERROR: Rig video timestamp mismatch > 10 mins: {time_diff:.1f}s - treating as not found")
+                closest_video = None  # Treat as not found
+            elif time_diff > 120:  # 2 minutes
+                print(f"⚠️  WARNING: Rig video timestamp mismatch > 120s: {time_diff:.1f}s")
+
+            if closest_video:  # Only proceed if still valid after time check
+                # Create filename with actual timestamp: 2024-02-22T09_46_32_p16_rig.avi
+                rig_formatted_timestamp = datetime_to_filename_format(rig_datetime)
+                rig_prefix = f"{rig_formatted_timestamp}_{animal_name}"
+                rig_link_name = f"{rig_prefix}_rig.avi"
+                video_link_path = os.path.join(datetime_folder_path, rig_link_name)
+
+                # Create softlink (symbolic link)
+                try:
+                    if not os.path.exists(video_link_path):
+                        os.symlink(closest_video, video_link_path)
+                    rig_video_linked = True
+                    video_basename = rig_link_name  # Update for display
+                except Exception:
+                    pass
+
+    # Look for hs_cam_frames CSV files
+    hs_cam_frames_pattern = os.path.join(rig_date_folder, 'hs_cam_frames_*.csv')
+    hs_cam_frames_files = glob.glob(hs_cam_frames_pattern)
+
+    if hs_cam_frames_files:
+        # Define timestamp extractor for hs_cam_frames files
+        def extract_hs_cam_frames_timestamp(csv_file):
+            basename = os.path.basename(csv_file)
+            return basename.replace('hs_cam_frames_', '').replace('.csv', '')
+
+        # Find closest hs_cam_frames file
+        closest_hs_cam_frames = find_closest_video(hs_cam_frames_files, datetime_obj, extract_hs_cam_frames_timestamp)
+
+        # Create softlink to the closest hs_cam_frames file
+        if closest_hs_cam_frames:
+            hs_cam_frames_basename = os.path.basename(closest_hs_cam_frames)
+
+            # Extract actual timestamp from matched file
+            frames_timestamp_str = extract_hs_cam_frames_timestamp(closest_hs_cam_frames)
+            frames_datetime = datetime.fromisoformat(frames_timestamp_str.replace('_', ':'))
+
+            # Check for time mismatch
+            time_diff = abs((frames_datetime - datetime_obj).total_seconds())
+            if time_diff > 600:  # 10 minutes
+                print(f"❌ ERROR: HS cam frames timestamp mismatch > 10 mins: {time_diff:.1f}s - treating as not found")
+                closest_hs_cam_frames = None  # Treat as not found
+            elif time_diff > 120:  # 2 minutes
+                print(f"⚠️  WARNING: HS cam frames timestamp mismatch > 120s: {time_diff:.1f}s")
+
+            if closest_hs_cam_frames:  # Only proceed if still valid after time check
+                # Create filename with actual timestamp: 2024-02-22T09_46_32_p16_hs_cam_frames.csv
+                frames_formatted_timestamp = datetime_to_filename_format(frames_datetime)
+                frames_prefix = f"{frames_formatted_timestamp}_{animal_name}"
+                hs_cam_frames_link_name = f"{frames_prefix}_hs_cam_frames.csv"
+                hs_cam_frames_link_path = os.path.join(datetime_folder_path, hs_cam_frames_link_name)
+
+                # Create softlink (symbolic link)
+                try:
+                    if not os.path.exists(hs_cam_frames_link_path):
+                        os.symlink(closest_hs_cam_frames, hs_cam_frames_link_path)
+                    hs_cam_frames_linked = True
+                    hs_cam_frames_basename = hs_cam_frames_link_name  # Update for display
+                except Exception:
+                    pass
 
 # Find hs video files in track_base
 # Look for files with pattern like 20241016_143919_hs.mp4
@@ -111,23 +176,41 @@ if hs_video_files:
 
     # Find closest hs video
     closest_hs_video = find_closest_video(hs_video_files, datetime_obj, extract_hs_timestamp)
+
     if closest_hs_video:
         closest_hs_video_name = os.path.basename(closest_hs_video)
 
         # Create symbolic link for hs video
-        # Rename softlink to hs_YYYYMMDD_HHMMSS.mp4
-        hs_link_name = f"hs_{date_folder}_{datetime_obj.strftime('%H%M%S')}.mp4"
-        hs_video_link_path = os.path.join(datetime_folder_path, hs_link_name)
-        try:
-            if not os.path.exists(hs_video_link_path):
-                os.symlink(closest_hs_video, hs_video_link_path)
-            hs_video_linked = True
-            closest_hs_video_name = hs_link_name  # Update for display
-        except Exception:
-            pass
+        # Extract actual timestamp from matched video
+        hs_timestamp_str = extract_hs_timestamp(closest_hs_video)
+        hs_datetime = datetime.fromisoformat(hs_timestamp_str.replace('_', ':'))
 
-        # Find and copy related files with same prefix (.mat, .trk, _calib.csv)
-        # Extract prefix from original hs video name (remove .mp4)
+        # Check for time mismatch
+        time_diff = abs((hs_datetime - datetime_obj).total_seconds())
+        if time_diff > 600:  # 10 minutes
+            print(f"❌ ERROR: HS video timestamp mismatch > 10 mins: {time_diff:.1f}s - treating as not found")
+            closest_hs_video = None  # Treat as not found
+        elif time_diff > 120:  # 2 minutes
+            print(f"⚠️  WARNING: HS video timestamp mismatch > 120s: {time_diff:.1f}s")
+
+        if closest_hs_video:  # Only proceed if still valid after time check
+            # Create filename with actual timestamp: 2024-02-22T09_46_32_p16_hs.mp4
+            hs_formatted_timestamp = datetime_to_filename_format(hs_datetime)
+            hs_file_prefix = f"{hs_formatted_timestamp}_{animal_name}"
+            hs_link_name = f"{hs_file_prefix}_hs.mp4"
+            hs_video_link_path = os.path.join(datetime_folder_path, hs_link_name)
+            try:
+                if not os.path.exists(hs_video_link_path):
+                    os.symlink(closest_hs_video, hs_video_link_path)
+                hs_video_linked = True
+                closest_hs_video_name = hs_link_name  # Update for display
+            except Exception:
+                pass
+
+    # Find and copy related files with same prefix (.mat, .trk, _calib.csv)
+    # Process these even if HS video was rejected due to timestamp
+    if closest_hs_video:
+        # Extract prefix from original hs video name (remove _hs.mp4)
         original_hs_name = os.path.basename(closest_hs_video)
         hs_prefix = original_hs_name.replace('.mp4', '')
 
@@ -143,10 +226,24 @@ if hs_video_files:
 
             matching_files = glob.glob(pattern)
 
-            # Copy each matching file
+            # Copy each matching file with new naming convention
             for file_path in matching_files:
                 file_basename = os.path.basename(file_path)
-                dest_path = os.path.join(datetime_folder_path, file_basename)
+
+                # Use the base prefix for related files (from CSV filename)
+                file_prefix = hs_file_prefix
+
+                # Create new filename using base timestamp
+                if ext == '.mat':
+                    new_filename = f"{file_prefix}_tracking.mat"
+                elif ext == '.trk':
+                    new_filename = f"{file_prefix}_tracking.trk"
+                elif ext == '_calib.csv':
+                    new_filename = f"{file_prefix}_calib.csv"
+                else:
+                    new_filename = file_basename  # fallback to original name
+
+                dest_path = os.path.join(datetime_folder_path, new_filename)
 
                 try:
                     if not os.path.exists(dest_path):
@@ -172,6 +269,12 @@ if rig_video_linked and 'video_basename' in locals():
     print(f"Rig video:       ✅ {video_basename}")
 else:
     print(f"Rig video:       ❌")
+
+# HS cam frames CSV with filename
+if hs_cam_frames_linked and 'hs_cam_frames_basename' in locals():
+    print(f"HS cam frames:   ✅ {hs_cam_frames_basename}")
+else:
+    print(f"HS cam frames:   ❌")
 
 # HS video with filename
 if hs_video_linked and closest_hs_video_name:

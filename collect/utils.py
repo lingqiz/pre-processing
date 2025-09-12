@@ -55,3 +55,9 @@ def find_closest_video(video_files, target_time, timestamp_extractor):
             continue
     
     return closest_video
+
+def datetime_to_filename_format(dt):
+    """
+    Convert datetime object to filename format: 2024-02-22T09_46_32
+    """
+    return dt.strftime('%Y-%m-%dT%H_%M_%S')
