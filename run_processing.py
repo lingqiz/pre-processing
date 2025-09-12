@@ -4,15 +4,16 @@ import sys
 import os
 import glob
 import subprocess
-from base_utils import parse_filename, parse_datetime, extract_hs_timestamp, find_closest_video
+from base_utils import *
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python run_processing.py <csv_filename>")
-        print("Example: python run_processing.py 2025-07-02T10_51_07_p35_ccf_all_params_file.csv")
+    if len(sys.argv) != 3:
+        print("Usage: python run_processing.py <base_path> <csv_filename>")
+        print("Example: python run_processing.py p34p35p36p37p38 2025-08-04T13_29_50_p36_ccf_all_params_file.csv")
         sys.exit(1)
 
-    csv_filename = sys.argv[1]
+    base_path = sys.argv[1]
+    csv_filename = sys.argv[2]
 
     # Extract information from the filename
     try:
@@ -51,7 +52,7 @@ def main():
 
         # Run tracking if time difference is acceptable (<10 minutes)
         if time_diff < 600:
-            print("Running tracking...")
+            print("\n\nRunning tracking...")
             tracking_script = "./tracking/run_track.sh"
             try:
                 result = subprocess.run([tracking_script, closest_hs_video],
@@ -59,6 +60,7 @@ def main():
                 print("Tracking submitted successfully.")
                 if result.stdout:
                     print(f"Output: {result.stdout}")
+
             except subprocess.CalledProcessError as e:
                 print(f"Error running tracking: {e}")
                 if e.stdout:
@@ -69,8 +71,13 @@ def main():
             except FileNotFoundError:
                 print(f"Tracking script not found: {tracking_script}")
                 sys.exit(1)
+
+            # Run calibration
+            print("Running calibration...")
+            run_calibration(base_path, csv_filename, os.path.basename(closest_hs_video))
+
         else:
-            print("Skipping tracking due to large time difference")
+            print("Skipping tracking and calibration due to large time difference")
     else:
         print("No matching video found")
         sys.exit(1)
