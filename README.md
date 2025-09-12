@@ -1,4 +1,4 @@
-### Video calibration and pre-processing toolkit for Modulo
+### Pre-processing and video calibration toolkit for Modulo
 
 #### Align videos using cross-correlation between optical flow and the zaber coordinate
 *Usage example:*
