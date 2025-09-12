@@ -55,7 +55,8 @@ def main():
             print("\n\nRunning tracking...")
             tracking_script = "./tracking/run_track.sh"
             try:
-                result = subprocess.run([tracking_script, closest_hs_video],
+                video_name = os.path.splitext(os.path.basename(closest_hs_video))[0]
+                result = subprocess.run([tracking_script, video_name],
                                        capture_output=True, text=True, check=True)
                 print("Tracking submitted successfully.")
                 if result.stdout:
