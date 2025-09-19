@@ -3,6 +3,7 @@ import shutil
 import os
 import sys
 import glob
+import subprocess
 from datetime import timedelta
 from datetime import datetime
 from utils import parse_filename, parse_datetime, find_closest_video, datetime_to_filename_format
@@ -204,6 +205,10 @@ if hs_video_files:
                     os.symlink(closest_hs_video, hs_video_link_path)
                 hs_video_linked = True
                 closest_hs_video_name = hs_link_name  # Update for display
+
+                # Submit video conversion job to cluster
+                convert_script = "./convert_video.sh"
+                subprocess.run([convert_script, hs_video_link_path])
             except Exception:
                 pass
 
