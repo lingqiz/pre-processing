@@ -6,14 +6,8 @@ import glob
 import subprocess
 from base_utils import *
 
-def main():
-    if len(sys.argv) != 3:
-        print("Usage: python run_processing.py <base_path> <csv_filename>")
-        print("Example: python run_processing.py p34p35p36p37p38 2025-08-04T13_29_50_p36_ccf_all_params_file.csv")
-        sys.exit(1)
-
-    base_path = sys.argv[1]
-    csv_filename = sys.argv[2]
+def process_file(base_path, csv_filename):
+    """Process a single CSV file with the given base path."""
 
     # Extract information from the filename
     try:
@@ -82,6 +76,17 @@ def main():
     else:
         print("No matching video found")
         sys.exit(1)
+
+def main():
+    """Main function for command line usage."""
+    if len(sys.argv) != 3:
+        print("Usage: python run_processing.py <base_path> <csv_filename>")
+        print("Example: python run_processing.py p34p35p36p37p38 2025-08-04T13_29_50_p36_ccf_all_params_file.csv")
+        sys.exit(1)
+
+    base_path = sys.argv[1]
+    csv_filename = sys.argv[2]
+    process_file(base_path, csv_filename)
 
 if __name__ == "__main__":
     main()
