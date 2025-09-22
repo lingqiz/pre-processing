@@ -67,6 +67,7 @@ def clean_temp():
     time.sleep(120)
 
     # delete all files in the temp directory that ends with .log and .m
+    print(f"Cleaning up temporary files in: {temp_dir}")
     for temp_file in Path(temp_dir).glob('*.log'):
         try:
             temp_file.unlink()
