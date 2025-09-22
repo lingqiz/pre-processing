@@ -12,6 +12,7 @@ import sys
 import glob
 import subprocess
 import re
+import time
 from pathlib import Path
 
 def find_datetime_csv_files(base_path):
@@ -59,6 +60,25 @@ def run_collect_files(all_params_base, csv_filename):
 
     print("-" * 50)
 
+def clean_temp():
+    # sleep for 120 seconds to ensure all processes are done
+    temp_dir = '/groups/zhang/home/zhangl5/.tmp/matlab'
+    print("Waiting to ensure all processes are done...")
+    time.sleep(120)
+
+    # delete all files in the temp directory that ends with .log and .m
+    for temp_file in Path(temp_dir).glob('*.log'):
+        try:
+            temp_file.unlink()
+        except Exception as e:
+            pass
+
+    for temp_file in Path(temp_dir).glob('*.m'):
+        try:
+            temp_file.unlink()
+        except Exception as e:
+            pass
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python batch_collect.py /path/to/all_params_base_folder")
@@ -102,6 +122,9 @@ def main():
         except Exception as e:
             print(f"❌ Unexpected error: {e}")
             continue
+
+    # clean up the temp directory
+    clean_temp()
 
     print("\n" + "="*60)
     print(f"Batch processing completed: {success_count}/{len(csv_files)} files processed successfully")
