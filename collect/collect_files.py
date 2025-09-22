@@ -102,6 +102,10 @@ if os.path.exists(rig_date_folder):
                         os.symlink(closest_video, video_link_path)
                     rig_video_linked = True
                     video_basename = rig_link_name  # Update for display
+
+                    # Submit video conversion job to cluster
+                    convert_script = "./convert_video.sh"
+                    subprocess.run([convert_script, video_link_path])
                 except Exception:
                     pass
 
