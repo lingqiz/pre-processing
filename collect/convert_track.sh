@@ -52,7 +52,3 @@ ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org \
   "bsub -J convert_trk -o '$log_file' -e '$log_file' -n 2 \
   \"cd $(pwd) && module load matlab && matlab -batch \\\"run('$temp_script')\\\"\""
 
-echo "MATLAB conversion job submitted. Check log file: $log_file"
-
-# Clean up temp script after a delay
-sleep 120 && rm -f "$temp_script" &
