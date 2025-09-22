@@ -12,7 +12,7 @@ name="${filename%.*}"
 output_file="${input_dir}/${name}_cmp.avi"
 
 output=$(ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org \
-  "bsub -J convert_mov -o /dev/null -n 8 'ffmpeg -i \"$input_file\" \
+  "bsub -J convert_mov -o /dev/null -n 4 'ffmpeg -i \"$input_file\" \
     -vf \"normalize=smoothing=60:strength=0.8,format=gray\" \
     -pix_fmt yuv420p \
     -c:v libx264 -crf 26 -preset medium -movflags +faststart -an \
