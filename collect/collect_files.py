@@ -4,6 +4,7 @@ import os
 import sys
 import glob
 import subprocess
+import time
 from datetime import timedelta
 from datetime import datetime
 from utils import parse_filename, parse_datetime, find_closest_video, datetime_to_filename_format
@@ -259,6 +260,20 @@ if hs_video_files:
                         mat_files_copied = True
                     elif ext == '.trk':
                         trk_files_copied = True
+
+                        # Check if corresponding .mat file exists, if not create it
+                        mat_path = file_path.replace('.trk', '.mat')
+                        if not os.path.exists(mat_path):
+                            # Submit conversion job to cluster
+                            convert_script = "./convert_track.sh"
+                            new_mat_path = dest_path.replace('.trk', '.mat')
+                            try:
+                                result = subprocess.run([convert_script, file_path, new_mat_path],
+                                                      capture_output=True, text=True, check=False)
+                                print(f"🔄 .mat conversion submitted to cluster for {file_basename}")
+                            except Exception as e:
+                                print(f"❌ Failed to submit conversion job for {file_basename}: {e}")
+
                     elif ext == '_calib.csv':
                         calib_files_copied = True
                 except Exception:
