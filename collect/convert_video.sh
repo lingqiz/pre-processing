@@ -15,5 +15,5 @@ ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org \
     "bsub -o /dev/null -n 8 'ffmpeg -i \"$input_file\" \
       -vf \"normalize\" \
       -pix_fmt gray \
-      -c:v libx264 -crf 26 -preset medium -movflags +faststart -an \
+      -c:v mjpeg -q:v 3 -an \
       \"$output_file\"'"
