@@ -1,6 +1,6 @@
 ### Pre-processing and video calibration toolkit for Modulo
 
-#### Updated Workflow 10/15/2025
+*Updated Workflow 10/15/2025*
 - Generate ccf_all_params files from experiment data (script from Nishan)
 - Run /batch_processing.py to get DCL tracking and calibration data from hs_cam
 - Run /collect/batch_collect.py to collect data into the new_format folder
@@ -10,7 +10,7 @@
 - Use `bash train.cmd index` for cross-validation training.
 - Training data under `/training/im`
 
-### Partial scripts during development
+### Partial scripts during development (Deprecated)
 
 #### Align videos using cross-correlation between optical flow and the zaber coordinate
 *Usage example:*
