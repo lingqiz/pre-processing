@@ -10,7 +10,7 @@
 - Use `bash train.cmd index` for cross-validation training.
 - Training data under `/training/im`
 
-### Partial scripts during development (Deprecated)
+### Partial scripts used during development (Deprecated)
 
 #### Align videos using cross-correlation between optical flow and the zaber coordinate
 *Usage example:*
