@@ -1,54 +1,76 @@
 #!/usr/bin/env python3
 # Usage: python batch_processing.py
-# Specify the base path using 'base_path' variable
-# Specify directory containing CSV files in the script using 'csv_dir' variable
-# Process all CSV files in a specified directory using run_processing.py
+# Reads group and datetime information from ./data/data_YYYYMMDD.json
+# Processes CSV files for each animal and datetime combination using run_processing.py
 
 import os
 import sys
+import json
+import re
 from pathlib import Path
 import run_processing
 
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
+BASE_PATH_ROOT = "/groups/dennis/dennislab/data/processed_data"
+
+def parse_group_animals(group_name):
+    """Parse group name into individual animal names.
+    e.g. 'b12b13' -> ['b12', 'b13'], 'p16p17p18' -> ['p16', 'p17', 'p18']
+    """
+    animals = re.findall(r'[a-zA-Z]+\d+', group_name)
+
+    if not animals:
+        raise ValueError(f"Could not parse animal names from group '{group_name}'")
+    return animals
+
 def main():
-    # Directory containing CSV files
-    base_path = "p34p35p36p37p38"
-    csv_dir = "/groups/zhang/home/zhangl5/Emily/Processed/p35_subset"
-
-    # Check if directory exists
-    if not os.path.exists(csv_dir):
-        print(f"Error: Directory {csv_dir} does not exist")
+    if len(sys.argv) != 2:
+        print("Usage: python batch_processing.py <json_filename>")
+        print("Example: python batch_processing.py data_20260219.json")
         sys.exit(1)
 
-    # Find all CSV files in the directory
-    csv_files = [f for f in os.listdir(csv_dir) if f.endswith('.csv')]
+    json_filename = sys.argv[1]
+    json_path = os.path.join(DATA_DIR, json_filename)
 
-    if not csv_files:
-        print(f"No CSV files found in {csv_dir}")
+    if not os.path.exists(json_path):
+        print(f"Error: JSON file {json_path} does not exist")
         sys.exit(1)
 
-    print(f"Found {len(csv_files)} CSV files to process:")
-    for csv_file in csv_files:
-        print(f"  - {csv_file}")
-    print()
+    with open(json_path, 'r') as f:
+        data = json.load(f)
 
-    # Process each CSV file
-    for csv_file in csv_files:
-        print(f"Processing: {csv_file}")
+    for group_name, categories in data.items():
+        animals = parse_group_animals(group_name)
+        base_path = f"{group_name}_ccf_all_params"
 
-        try:
-            # Call the processing function directly
-            run_processing.process_file(base_path, csv_file)
-            print(f"✓ Successfully processed {csv_file}")
+        print(f"=== Group: {group_name} ===")
+        print(f"  Animals: {', '.join(animals)}")
+        print(f"  Base path: {os.path.join(BASE_PATH_ROOT, base_path)}")
+        print()
 
-        except SystemExit as e:
-            if e.code != 0:
-                print(f"✗ Error processing {csv_file}: exited with code {e.code}")
-            else:
-                print(f"✓ Successfully processed {csv_file}")
-        except Exception as e:
-            print(f"✗ Unexpected error processing {csv_file}: {e}")
+        # Collect all datetimes across all categories
+        for category, datetimes in categories.items():
+            print(f"--- Category: {category} ({len(datetimes)} sessions) ---")
 
-        print("-" * 50)
+            for dt in datetimes:
+                for animal in animals:
+                    csv_filename = f"{dt}_{animal}_ccf_all_params_file.csv"
+                    print(f"Processing: {csv_filename}")
+
+                    try:
+                        run_processing.process_file(base_path, csv_filename)
+                        print(f"  Successfully processed {csv_filename}")
+                    except SystemExit as e:
+                        if e.code != 0:
+                            print(f"  Error processing {csv_filename}: exited with code {e.code}")
+                        else:
+                            print(f"  Successfully processed {csv_filename}")
+                    except Exception as e:
+                        print(f"  Unexpected error processing {csv_filename}: {e}")
+
+                    print("-" * 50)
+
+            print()
 
 if __name__ == "__main__":
     main()

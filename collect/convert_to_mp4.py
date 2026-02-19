@@ -22,12 +22,9 @@ def submit_job(avi_path):
     mp4_name = f"{date_str}_{time_str}_hs.mp4"
     mp4_path = os.path.join(INPUT_DIR, mp4_name)
 
-    if os.path.exists(mp4_path):
-        print(f"SKIP (exists): {mp4_name}")
-        return
-
     ffmpeg_cmd = (
         f'ffmpeg -i "{avi_path}" '
+        f'-vf "hflip,vflip" '
         f'-c:v libx264 -crf 18 -preset medium '
         f'-pix_fmt yuv420p '
         f'-y "{mp4_path}"'
