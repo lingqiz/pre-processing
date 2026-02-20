@@ -99,10 +99,10 @@ def run_calibration(base_path, csv_filename, hs_name,
 
         # Check if files exist
         if not os.path.exists(zaber_path):
-            print(f"Warning: Zaber file not found: {zaber_path}")
+            print(f"⚠️ Warning: Zaber file not found: {zaber_path}")
             return
         if not os.path.exists(video_path):
-            print(f"Warning: Video file not found: {video_path}")
+            print(f"⚠️ Warning: Video file not found: {video_path}")
             return
 
         # Phase 1: run initial estimate locally

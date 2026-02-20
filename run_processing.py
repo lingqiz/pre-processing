@@ -40,9 +40,9 @@ def process_file(base_path, csv_filename):
 
         # Check for significant time mismatch
         if time_diff > 600:  # 10 minutes
-            print(f"WARNING: Large time difference (>{time_diff:.1f}s). Video not found.")
+            print(f"⚠️ WARNING: Large time difference (>{time_diff:.1f}s). Video not found.")
         elif time_diff > 120:  # 2 minutes
-            print(f"WARNING: Moderate time difference ({time_diff:.1f}s). Please verify correctness.")
+            print(f"⚠️ WARNING: Moderate time difference ({time_diff:.1f}s). Please verify correctness.")
 
         # Run tracking if time difference is acceptable (<10 minutes)
         if time_diff < 600:
