@@ -10,6 +10,14 @@
 - Use `bash train.cmd index` for cross-validation training.
 - Training data under `/training/im`
 
+## Conda Environment (for cluster jobs)
+A conda environment at `/groups/zhang/home/zhangl5/conda/envs/video` (Python 3.10) is used for running jobs on the Janelia cluster. It lives on the shared filesystem so both local and cluster nodes can access it.
+
+- **Python path**: `/groups/zhang/home/zhangl5/conda/envs/video/bin/python3`
+- **Conda install**: `/groups/zhang/home/zhangl5/conda`
+- **Update packages**: Sync from poetry with `poetry export -f requirements.txt --without-hashes -o /tmp/req.txt && /groups/zhang/home/zhangl5/conda/envs/video/bin/pip install -r /tmp/req.txt`
+- **Local development** still uses the poetry-managed `.venv`
+
 ## Partial scripts used during development (Deprecated)
 
 ### Align videos using cross-correlation between optical flow and the zaber coordinate

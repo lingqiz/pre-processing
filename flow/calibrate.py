@@ -161,15 +161,16 @@ def calib_video_init(zaber_path, video_path, window=45):
         init_lag, _, _, corr = compute_lag(zaber_path, video_path, 0, init_window)
         if corr >= 0.40:
             run_flag = False
+
         else:
-            print(f'Lag estimate {init_lag:.3f}, correlation {corr:.3f} is too low\
-                  increasing window to {init_window} seconds')
-            init_window *= 2
-
-        if init_window > init_max:
-            print('Warning: initial calibration failed')
-            return None
-
+            print(f'Lag estimate {init_lag:.3f}, correlation {corr:.3f} is too low') 
+            if init_window >= init_max:
+                print('⚠️ Warning: initial calibration did not find good correlation.')
+                run_flag = False                
+            else:
+                print(f'increasing window to {init_window * 2} seconds')
+                init_window *= 2                
+        
     print('Initial Lag: %.3f (sec);' % init_lag, 'Correlation: %.3f' % corr)
     return init_lag, init_window, t_max
 

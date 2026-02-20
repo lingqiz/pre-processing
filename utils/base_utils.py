@@ -120,8 +120,10 @@ def run_calibration(base_path, csv_filename, hs_name,
         os.makedirs(log_dir, exist_ok=True)
         log_path = os.path.abspath(os.path.join(log_dir, f'{job_name}.log'))
 
+        CONDA_PYTHON = '/groups/zhang/home/zhangl5/conda/envs/video/bin/python3'
+
         python_cmd = (
-            f"python {SCRIPT_PATH} "
+            f"{CONDA_PYTHON} -u {SCRIPT_PATH} "
             f'"{zaber_path}" "{video_path}" "{hs_name}" '
             f"{init_lag} {init_window} {t_max} {n_point} {window}"
         )
