@@ -142,10 +142,8 @@ def compute_lag(zaber_path, video_path, t0, length, init=0):
     video.release()
     return lag, video_index, zaber_index, corr_val
 
-def calib_video(zaber_path, video_path,
-                n_point=60, window=45,
-                exclude=True, pbar=True):
-
+def calib_video_init(zaber_path, video_path, window=45):
+    """Run initial lag estimate only. Returns (init_lag, init_window, t_max) or None."""
     # find the maximum length
     zaber = ZaberData(zaber_path)
     zaber_max = zaber.zaber_t[-1]
@@ -173,6 +171,16 @@ def calib_video(zaber_path, video_path,
             return None
 
     print('Initial Lag: %.3f (sec);' % init_lag, 'Correlation: %.3f' % corr)
+    return init_lag, init_window, t_max
+
+def calib_video(zaber_path, video_path,
+                n_point=60, window=45,
+                exclude=True, pbar=True):
+
+    result = calib_video_init(zaber_path, video_path, window)
+    if result is None:
+        return None
+    init_lag, init_window, t_max = result
 
     # run calibration along anchor points t0
     t0 = np.linspace(init_window, t_max, n_point)
