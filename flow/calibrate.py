@@ -161,16 +161,18 @@ def calib_video(zaber_path, video_path,
     init_window = window
     while run_flag:
         init_lag, _, _, corr = compute_lag(zaber_path, video_path, 0, init_window)
-        if corr >= 0.5:
+        if corr >= 0.40:
             run_flag = False
         else:
+            print(f'Lag estimate {init_lag:.3f}, correlation {corr:.3f} is too low\
+                  increasing window to {init_window} seconds')
             init_window *= 2
 
         if init_window > init_max:
             print('Warning: initial calibration failed')
             return None
 
-    print('Initial Lag: %.3f (sec)' % init_lag)
+    print('Initial Lag: %.3f (sec)' % init_lag, 'Correlation: %.3f;' % corr)
 
     # run calibration along anchor points t0
     t0 = np.linspace(init_window, t_max, n_point)

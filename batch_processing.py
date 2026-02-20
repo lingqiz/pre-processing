@@ -52,23 +52,23 @@ def main():
         for category, datetimes in categories.items():
             print(f"--- Category: {category} ({len(datetimes)} sessions) ---")
 
-            for dt in datetimes:
-                for animal in animals:
-                    csv_filename = f"{dt}_{animal}_ccf_all_params_file.csv"
-                    print(f"Processing: {csv_filename}")
+            for i, dt in enumerate(datetimes):
+                animal = animals[i % len(animals)]
+                csv_filename = f"{dt}_{animal}_ccf_all_params_file.csv"
+                print(f"Processing: {csv_filename}")
 
-                    try:
-                        run_processing.process_file(base_path, csv_filename)
+                try:
+                    run_processing.process_file(base_path, csv_filename)
+                    print(f"  Successfully processed {csv_filename}")
+                except SystemExit as e:
+                    if e.code != 0:
+                        print(f"  Error processing {csv_filename}: exited with code {e.code}")
+                    else:
                         print(f"  Successfully processed {csv_filename}")
-                    except SystemExit as e:
-                        if e.code != 0:
-                            print(f"  Error processing {csv_filename}: exited with code {e.code}")
-                        else:
-                            print(f"  Successfully processed {csv_filename}")
-                    except Exception as e:
-                        print(f"  Unexpected error processing {csv_filename}: {e}")
+                except Exception as e:
+                    print(f"  Unexpected error processing {csv_filename}: {e}")
 
-                    print("-" * 50)
+                print("-" * 50)
 
             print()
 
