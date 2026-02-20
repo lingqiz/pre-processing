@@ -6,22 +6,11 @@
 import os
 import sys
 import json
-import re
-from pathlib import Path
+import glob
 import run_processing
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 BASE_PATH_ROOT = "/groups/dennis/dennislab/data/processed_data"
-
-def parse_group_animals(group_name):
-    """Parse group name into individual animal names.
-    e.g. 'b12b13' -> ['b12', 'b13'], 'p16p17p18' -> ['p16', 'p17', 'p18']
-    """
-    animals = re.findall(r'[a-zA-Z]+\d+', group_name)
-
-    if not animals:
-        raise ValueError(f"Could not parse animal names from group '{group_name}'")
-    return animals
 
 def main():
     if len(sys.argv) != 2:
@@ -40,21 +29,27 @@ def main():
         data = json.load(f)
 
     for group_name, categories in data.items():
-        animals = parse_group_animals(group_name)
         base_path = f"{group_name}_ccf_all_params"
+        dest_dir = os.path.join(BASE_PATH_ROOT, base_path)
 
         print(f"=== Group: {group_name} ===")
-        print(f"  Animals: {', '.join(animals)}")
-        print(f"  Base path: {os.path.join(BASE_PATH_ROOT, base_path)}")
+        print(f"  Base path: {dest_dir}")
         print()
 
-        # Collect all datetimes across all categories
         for category, datetimes in categories.items():
             print(f"--- Category: {category} ({len(datetimes)} sessions) ---")
 
-            for i, dt in enumerate(datetimes):
-                animal = animals[i % len(animals)]
-                csv_filename = f"{dt}_{animal}_ccf_all_params_file.csv"
+            for dt in datetimes:
+                # Look up the actual file in the dest folder by datetime
+                pattern = os.path.join(dest_dir, f"{dt}_*_ccf_all_params_file.csv")
+                matches = glob.glob(pattern)
+
+                if not matches:
+                    print(f"No CSV found for datetime {dt} in {dest_dir}")
+                    print("-" * 50)
+                    continue
+
+                csv_filename = os.path.basename(matches[0])
                 print(f"Processing: {csv_filename}")
 
                 try:
