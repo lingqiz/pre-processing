@@ -1,16 +1,11 @@
 ## Pre-processing and video calibration toolkit for Modulo
 
-*Updated Workflow 10/15/2025*
+**Updated Workflow as of 02/19/2026**
 - Generate ccf_all_params files from experiment data (script from Nishan)
-- Run /batch_processing.py to get DCL tracking and calibration data from hs_cam
-- Run /collect/batch_collect.py to collect data into the new_format folder
+- Run `./batch_processing.py` to get DCL tracking and calibration data from hs_cam
+- Run `./collect/batch_collect.py` to collect data into the new_format folder (include video and trk file conversions)
 
-## Train / cross-validate DLC tracker (with Janelia Cluster)
-*For Janelia cluster:*
-- Use `bash train.cmd index` for cross-validation training.
-- Training data under `/training/im`
-
-## Conda Environment (for cluster jobs)
+## Note on Conda Environment (for cluster jobs)
 A conda environment at `/groups/zhang/home/zhangl5/conda/envs/video` (Python 3.10) is used for running jobs on the Janelia cluster. It lives on the shared filesystem so both local and cluster nodes can access it.
 
 - **Python path**: `/groups/zhang/home/zhangl5/conda/envs/video/bin/python3`
@@ -18,7 +13,12 @@ A conda environment at `/groups/zhang/home/zhangl5/conda/envs/video` (Python 3.1
 - **Update packages**: Sync from poetry with `poetry export -f requirements.txt --without-hashes -o /tmp/req.txt && /groups/zhang/home/zhangl5/conda/envs/video/bin/pip install -r /tmp/req.txt`
 - **Local development** still uses the poetry-managed `.venv`
 
-## Partial scripts used during development (Deprecated)
+## Train / cross-validate DLC tracker (with Janelia Cluster)
+*For Janelia cluster:*
+- Use `bash train.cmd index` for cross-validation training.
+- Training data under `/training/im`
+
+## Partial scripts used during development **(DEPRECATED)**
 
 ### Align videos using cross-correlation between optical flow and the zaber coordinate
 *Usage example:*
