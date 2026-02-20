@@ -172,7 +172,7 @@ def calib_video(zaber_path, video_path,
             print('Warning: initial calibration failed')
             return None
 
-    print('Initial Lag: %.3f (sec)' % init_lag, 'Correlation: %.3f;' % corr)
+    print('Initial Lag: %.3f (sec);' % init_lag, 'Correlation: %.3f' % corr)
 
     # run calibration along anchor points t0
     t0 = np.linspace(init_window, t_max, n_point)
