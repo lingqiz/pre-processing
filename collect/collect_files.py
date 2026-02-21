@@ -274,7 +274,7 @@ if hs_video_files:
                             try:
                                 result = subprocess.run([convert_script, file_path, new_mat_path],
                                                       capture_output=True, text=True, check=False)
-                                print(f"🔄 .mat conversion submitted to cluster for {file_basename}")
+                                print(f"Submitted job to cluster for converting {file_basename} to .mat")
                             except Exception as e:
                                 print(f"❌ Failed to submit conversion job for {file_basename}: {e}")
 
