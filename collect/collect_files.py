@@ -283,6 +283,32 @@ if hs_video_files:
                 except Exception:
                     pass
 
+# Create simplified alias symlinks
+hs_video_alias_created = False
+tracking_alias_created = False
+
+# Alias for hs compressed video -> hs_video.avi
+if hs_video_linked and closest_hs_video_name:
+    cmp_name = closest_hs_video_name.replace('.mp4', '_cmp.avi')
+    alias_path = os.path.join(datetime_folder_path, 'hs_video.avi')
+    try:
+        if not os.path.exists(alias_path):
+            os.symlink(cmp_name, alias_path)
+        hs_video_alias_created = True
+    except Exception:
+        pass
+
+# Alias for tracking.trk
+if trk_files_copied:
+    trk_name = f"{hs_file_prefix}_tracking.trk"
+    alias_path = os.path.join(datetime_folder_path, 'tracking.trk')
+    try:
+        if not os.path.exists(alias_path):
+            os.symlink(trk_name, alias_path)
+        tracking_alias_created = True
+    except Exception:
+        pass
+
 # Print status summary
 print(f"\n=== Summary ===")
 print(f"Target folder: {datetime_folder_path}")
