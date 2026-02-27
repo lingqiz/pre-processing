@@ -34,3 +34,4 @@ A conda environment at `/groups/zhang/home/zhangl5/conda/envs/video` (Python 3.1
 - Modify `track_names.txt` to specify input files.
 - Run `python3 run_track.py` to launch tracking.
 - Run `convert_trk.m` in MATLAB to convert trk to mat format.
+- Note DLC by default use a batch_size = 1, to use a larger batch size, switch the repo in APT to dlc-fix. (On L4 GPU, this does not result in significant speed up)
