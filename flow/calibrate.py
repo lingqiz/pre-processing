@@ -159,7 +159,7 @@ def calib_video_init(zaber_path, video_path, window=45):
     init_window = window
     while run_flag:
         init_lag, _, _, corr = compute_lag(zaber_path, video_path, 0, init_window)
-        if corr >= 0.40:
+        if corr >= 0.50:
             run_flag = False
 
         else:
