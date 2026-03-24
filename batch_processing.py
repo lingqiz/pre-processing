@@ -29,7 +29,11 @@ def main():
         data = json.load(f)
 
     for group_name, categories in data.items():
-        base_path = f"{group_name}_ccf_all_params"
+        base_path_with_suffix = f"{group_name}_ccf_all_params"
+        if os.path.isdir(os.path.join(BASE_PATH_ROOT, base_path_with_suffix)):
+            base_path = base_path_with_suffix
+        else:
+            base_path = group_name
         dest_dir = os.path.join(BASE_PATH_ROOT, base_path)
 
         print(f"=== Group: {group_name} ===")
