@@ -50,5 +50,5 @@ log_file="/groups/zhang/home/zhangl5/.tmp/matlab/convert_$(basename "$input_file
 
 ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org \
   "bsub -J convert_trk -o '$log_file' -e '$log_file' -n 2 \
-  \"cd $(pwd) && module load matlab && matlab -batch \\\"run('$temp_script')\\\"\""
+  \"module load matlab && matlab -batch \\\"run('$temp_script')\\\"\""
 
