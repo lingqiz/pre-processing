@@ -77,6 +77,12 @@ def find_closest_video(video_files, target_time, timestamp_extractor):
     
     return closest_video, min_time_diff
 
+def datetime_to_filename_format(dt):
+    """
+    Convert datetime object to filename format: 2024-02-22T09_46_32
+    """
+    return dt.strftime('%Y-%m-%dT%H_%M_%S')
+
 def run_calibration(base_path, csv_filename, hs_name,
                     n_point=60, window=45):
     """Run calibration: initial estimate locally, anchor points on cluster via bsub."""

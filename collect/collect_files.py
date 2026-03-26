@@ -7,7 +7,9 @@ import subprocess
 import time
 from datetime import timedelta
 from datetime import datetime
-from utils import parse_filename, parse_datetime, find_closest_video, datetime_to_filename_format
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from utils.base_utils import parse_filename, parse_datetime, find_closest_video, datetime_to_filename_format
 
 # Get filename from command line argument
 all_params_base = sys.argv[1]
@@ -71,7 +73,7 @@ if os.path.exists(rig_date_folder):
             return basename.replace('video_basler_', '').replace('.avi', '')
 
         # Find closest rig video
-        closest_video = find_closest_video(video_files, datetime_obj, extract_rig_timestamp)
+        closest_video, _ = find_closest_video(video_files, datetime_obj, extract_rig_timestamp)
 
         # Create softlink to the closest video
         if closest_video:
@@ -120,7 +122,7 @@ if os.path.exists(rig_date_folder):
             return basename.replace('hs_cam_frames_', '').replace('.csv', '')
 
         # Find closest hs_cam_frames file
-        closest_hs_cam_frames = find_closest_video(hs_cam_frames_files, datetime_obj, extract_hs_cam_frames_timestamp)
+        closest_hs_cam_frames, _ = find_closest_video(hs_cam_frames_files, datetime_obj, extract_hs_cam_frames_timestamp)
 
         # Create softlink to the closest hs_cam_frames file
         if closest_hs_cam_frames:
@@ -181,7 +183,7 @@ if hs_video_files:
         raise ValueError("Invalid hs video filename format")
 
     # Find closest hs video
-    closest_hs_video = find_closest_video(hs_video_files, datetime_obj, extract_hs_timestamp)
+    closest_hs_video, _ = find_closest_video(hs_video_files, datetime_obj, extract_hs_timestamp)
 
     if closest_hs_video:
         closest_hs_video_name = os.path.basename(closest_hs_video)
