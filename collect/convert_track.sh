@@ -15,7 +15,8 @@ output_file="${input_dir}/${name}.mat"
 dest_file="$2"
 
 # Create a temporary MATLAB script for this specific file
-temp_script="/groups/zhang/home/zhangl5/.tmp/matlab/convert_trk_${RANDOM}.m"
+safe_name="${name//-/_}"
+temp_script="/groups/zhang/home/zhangl5/.tmp/matlab/convert_trk_${safe_name}.m"
 cat > "$temp_script" << EOF
 try
     % Load .trk file
@@ -46,9 +47,9 @@ end
 EOF
 
 # Create log file path
-log_file="/groups/zhang/home/zhangl5/.tmp/matlab/convert_$(basename "$input_file").log"
+log_file="/groups/zhang/home/zhangl5/.tmp/matlab/convert_trk_${safe_name}.log"
 
 ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org \
-  "bsub -J convert_trk -o '$log_file' -e '$log_file' -n 2 \
+  "bsub -J convert_trk -o '$log_file' -e '$log_file' -n 4 \
   \"module load matlab && matlab -batch \\\"run('$temp_script')\\\"\""
 

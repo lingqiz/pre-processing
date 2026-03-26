@@ -7,10 +7,12 @@ fi
 
 expdir="$1"
 folder_name=$(basename "$expdir")
+# Replace hyphens with underscores so MATLAB doesn't parse them as minus
+safe_name="${folder_name//-/_}"
 
 # Create a temporary MATLAB script for this specific expdir
-temp_script="/groups/zhang/home/zhangl5/.tmp/matlab/jaaba_${folder_name}.m"
-log_file="/groups/zhang/home/zhangl5/.tmp/matlab/jaaba_${folder_name}.log"
+temp_script="/groups/zhang/home/zhangl5/.tmp/matlab/jaaba_${safe_name}.m"
+log_file="/groups/zhang/home/zhangl5/.tmp/matlab/jaaba_${safe_name}.log"
 
 cat > "$temp_script" << EOF
 try
