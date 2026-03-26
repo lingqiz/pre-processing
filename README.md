@@ -4,6 +4,7 @@
 - Generate ccf_all_params files from experiment data (script from Nishan)
 - Run `./batch_processing.py` to get DCL tracking and calibration data from hs_cam
 - Run `./collect/batch_collect.py` to collect data into the new_format folder (include video and trk file conversions)
+- Run `./jaaba/batch_jaaba.py` to run JAABA detect on the videos (after the new_format is created)
 
 ## Note on Conda Environment (for cluster jobs)
 A conda environment at `/groups/zhang/home/zhangl5/conda/envs/video` (Python 3.10) is used for running jobs on the Janelia cluster. It lives on the shared filesystem so both local and cluster nodes can access it.
