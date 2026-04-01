@@ -1,11 +1,13 @@
 ## Pre-processing and video calibration toolkit for Modulo
 
-**Updated Workflow as of 02/19/2026**
+**Updated Workflow as of 02/19/2026**  
+
+Generate new_format folder to collect all data
 - Generate ccf_all_params files from experiment data (script from Nishan)
 - Run `./batch_processing.py` to get DCL tracking and calibration data from hs_cam
 - Run `./collect/batch_collect.py` to collect data into the new_format folder (include video and trk file conversions)
 
-  After the new_format is created:
+After the new_format is created:
 - Run `./collect/generate_index.py` to build the zaber to hs_video index.
 - Run `./jaaba/batch_jaaba.py` to run JAABA detect on the videos
 
