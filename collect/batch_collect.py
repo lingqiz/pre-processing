@@ -16,6 +16,10 @@ from pathlib import Path
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 BASE_PATH_ROOT = "/groups/dennis/dennislab/data/processed_data"
+NEW_FORMAT_BASE = "/groups/dennis/dennislab/data/new_format"
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from utils.base_utils import parse_filename
 
 def run_collect_files(all_params_base, csv_filename):
     """
@@ -43,6 +47,40 @@ def run_collect_files(all_params_base, csv_filename):
         print(f"❌ Exception processing {csv_filename}: {e}")
 
     print("-" * 50)
+
+def update_data_json(animal_data):
+    """Merge per-animal session data into new_format/data.json.
+
+    animal_data: dict of { animal_name: { category: [datetimes] } }
+    """
+    import json
+
+    data_json_path = os.path.join(NEW_FORMAT_BASE, "data.json")
+
+    # Load existing data if present
+    if os.path.exists(data_json_path):
+        with open(data_json_path, 'r') as f:
+            existing = json.load(f)
+    else:
+        existing = {}
+
+    # Merge: for each animal/category, union the datetime lists (preserving order)
+    for animal, categories in animal_data.items():
+        if animal not in existing:
+            existing[animal] = {}
+        for category, datetimes in categories.items():
+            if category not in existing[animal]:
+                existing[animal][category] = []
+            existing_set = set(existing[animal][category])
+            for dt in datetimes:
+                if dt not in existing_set:
+                    existing[animal][category].append(dt)
+
+    with open(data_json_path, 'w') as f:
+        json.dump(existing, f, indent=2)
+        f.write('\n')
+
+    print(f"\nUpdated {data_json_path}")
 
 def clean_temp():
     # sleep for 120 seconds to ensure all processes are done
@@ -88,6 +126,7 @@ def main():
 
     success_count = 0
     total_count = 0
+    animal_data = {}  # { animal_name: { category: [datetimes] } }
 
     for group_name, categories in data.items():
         base_path_with_suffix = f"{group_name}_ccf_all_params"
@@ -116,6 +155,15 @@ def main():
                     continue
 
                 csv_filename = os.path.basename(matches[0])
+                animal_name, _ = parse_filename(csv_filename)
+
+                # Track per-animal data for data.json
+                if animal_name not in animal_data:
+                    animal_data[animal_name] = {}
+                if category not in animal_data[animal_name]:
+                    animal_data[animal_name][category] = []
+                animal_data[animal_name][category].append(dt)
+
                 print(f"\n⚙️  Processing: {csv_filename}")
 
                 try:
@@ -127,6 +175,9 @@ def main():
                 except Exception as e:
                     print(f"❌ Unexpected error: {e}")
                     continue
+
+    # Merge per-animal data into new_format/data.json
+    update_data_json(animal_data)
 
     # clean up the temp directory
     clean_temp()
