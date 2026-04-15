@@ -163,6 +163,7 @@ hs_video_files = glob.glob(hs_video_pattern)
 
 hs_video_linked = False
 mat_files_copied = False
+mat_conversion_submitted = False
 trk_files_copied = False
 calib_files_copied = False
 
@@ -267,18 +268,17 @@ if hs_video_files:
                     elif ext == '.trk':
                         trk_files_copied = True
 
-                        # Check if corresponding .mat file exists, if not create it
-                        mat_path = file_path.replace('.trk', '.mat')
-                        if not os.path.exists(mat_path):
-                            # Submit conversion job to cluster
-                            convert_script = "./convert_track.sh"
-                            new_mat_path = dest_path.replace('.trk', '.mat')
-                            try:
-                                result = subprocess.run([convert_script, file_path, new_mat_path],
-                                                      capture_output=True, text=True, check=False)
-                                print(f"Submitted job to cluster for converting {file_basename} to .mat")
-                            except Exception as e:
-                                print(f"❌ Failed to submit conversion job for {file_basename}: {e}")
+                        # Always submit conversion job, regardless of whether .mat exists
+                        convert_script = "./convert_track.sh"
+                        new_mat_path = dest_path.replace('.trk', '.mat')
+                        try:
+                            result = subprocess.run([convert_script, file_path, new_mat_path],
+                                                  capture_output=True, text=True, check=False)
+                            print(f"Submitted job to cluster for converting {file_basename} to .mat")
+                            if result.returncode == 0:
+                                mat_conversion_submitted = True
+                        except Exception as e:
+                            print(f"❌ Failed to submit conversion job for {file_basename}: {e}")
 
                     elif ext == '_calib.csv':
                         calib_files_copied = True
@@ -334,7 +334,7 @@ if hs_video_linked and closest_hs_video_name:
 else:
     print(f"HS video:        ❌")
 
-print(f"MAT files:       {'✅' if mat_files_copied else '❌'}")
+print(f"MAT files:       {'🔄' if mat_conversion_submitted else ('✅' if mat_files_copied else '❌')}")
 print(f"TRK files:       {'✅' if trk_files_copied else '❌'}")
 print(f"Calib CSV files: {'✅' if calib_files_copied else '❌'}")
 print("================================")
