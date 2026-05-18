@@ -19,8 +19,8 @@ try
     run('/groups/zhang/home/zhangl5/JAABA/perframe/SetUpJAABAPath.m');
 
     expdir = '$expdir';
-    jabfiles = {'/groups/dennis/dennislab/lingqi/03202026_Rearing.jab',
-        '/groups/dennis/dennislab/lingqi/03202026_Grooming.jab'};
+    jabfiles = {'/groups/dennis/dennislab/lingqi/05182026_Rearing.jab',
+        '/groups/dennis/dennislab/lingqi/05182026_Grooming.jab'};
 
     JAABADetect(expdir, 'jabfiles', jabfiles, 'forcecompute', true);
     fprintf('Successfully ran JAABADetect on %s\n', expdir);
