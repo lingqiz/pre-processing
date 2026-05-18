@@ -4,12 +4,13 @@
 
 Generate new_format folder to collect all data
 - Generate ccf_all_params files from experiment data (script from Nishan)
-- Run `./batch_processing.py` to get DCL tracking and calibration data from hs_cam
-- Run `./collect/batch_collect.py` to collect data into the new_format folder (include video and trk file conversions)
+- Use a json file (e.g., `./data/data_20260324.json`) to specify experiments to be processed
+- Run `./batch_processing.py data.json` to get DCL tracking and calibration data from hs_cam
+- Run `./collect/batch_collect.py data.json` to collect data into the new_format folder (include video and trk file conversions)
 
 After the new_format is created:
 - Run `./collect/generate_index.py` to build the zaber to hs_video index.
-- Run `./jaaba/batch_jaaba.py` to run JAABA detect on the videos
+- Run `./jaaba/batch_jaaba.py data.json` to run JAABA detect on the videos
 
 ## Note on Conda Environment (for cluster jobs)
 A conda environment at `/groups/zhang/home/zhangl5/conda/envs/video` (Python 3.10) is used for running jobs on the Janelia cluster. It lives on the shared filesystem so both local and cluster nodes can access it.
@@ -24,7 +25,7 @@ A conda environment at `/groups/zhang/home/zhangl5/conda/envs/video` (Python 3.1
 - Use `bash train.cmd index` for cross-validation training.
 - Training data under `/training/im`
 
-## Partial scripts used during development **(DEPRECATED)**
+## **(DEPRECATED)** Partial scripts used during development 
 
 ### Align videos using cross-correlation between optical flow and the zaber coordinate
 *Usage example:*
