@@ -2,8 +2,8 @@
 
 This folder runs a 5-fold cross-validation of the APT / DeepLabCut pose tracker
 (37 keypoints, single view, 1024×1024). It estimates how well the tracker
-generalizes by training on 90% of the hand-labeled frames and predicting on the
-held-out 10%, repeated over 5 non-overlapping validation folds.
+generalizes by training on 80% of the hand-labeled frames and predicting on the
+held-out 20%, repeated over 5 non-overlapping validation folds.
 
 ## Files
 
@@ -57,7 +57,7 @@ Options:
 ## Step 2 — Submit training jobs
 
 ```bash
-bash submit_train.sh                  # all 5 folds
+bash submit_train.sh    # all 5 folds
 ```
 
 Submits one bsub GPU job per fold, all
@@ -71,7 +71,7 @@ running in parallel. Each fold:
 ## Step 3 — Validate on the held-out frames
 
 ```bash
-python validation.py                          # all 5 folds
+python validation.py    # all 5 folds
 ```
 
 For each fold:
@@ -89,7 +89,7 @@ For each fold:
 ## Step 4 — Convert `.trk` → `.mat`
 
 ```bash
-bash convert.sh                            # all 5 folds
+bash convert.sh      # all 5 folds
 ```
 
 Submits one bsub MATLAB job that loads each `.temp/out_${i}.trk` (which is a
