@@ -42,18 +42,22 @@ To regenerate the package from a newer `.lbl` project (e.g.
 python make_splits.py
 ```
 
-Shuffles `labels.json` (fixed seed = 42) and writes 5 folds into `cv/`.
-Also creates `cv/im -> ../im` as a symlink. 
+Sorts `labels.json` by `(imov, frm)` so frames are in natural movie order, then
+assigns each frame to a fold by stride: fold `i` holds out indices
+`{j : j % n_fold == i}` as validation, the rest as training.
+
+Also creates `cv/im -> ../im` as a symlink. APT resolves image paths as
+`os.path.join(dirname(json_trn_file), img_path)`, so it needs `im/` next to the
+split jsons. The symlink avoids copying ~320 MB of PNGs.
+
 Options:
-- `--seed N` — change the shuffle seed (different split).
 - `--labels PATH` / `--out-dir DIR` — override the defaults.
-- `--n-fold` / `--val-frac` — change the fold layout (defaults: 5, 0.1).
+- `--n-fold N` — change the number of folds (default: 5).
 
 ## Step 2 — Submit training jobs
 
 ```bash
 bash submit_train.sh                  # all 5 folds
-bash submit_train.sh 1 3              # only folds 1 and 3
 ```
 
 Submits one bsub GPU job per fold, all
@@ -68,9 +72,6 @@ running in parallel. Each fold:
 
 ```bash
 python validation.py                          # all 5 folds
-python validation.py 1 3                      # only folds 1 and 3
-python validation.py --no-build               # reuse existing .temp/val_*.mp4
-python validation.py --checkpoint deepnet-540000 1   # override auto-pick (fold 1)
 ```
 
 For each fold:
@@ -89,16 +90,13 @@ For each fold:
 
 ```bash
 bash convert.sh                            # all 5 folds
-bash convert.sh 0 3                        # only folds 0 and 3
 ```
 
 Submits one bsub MATLAB job that loads each `.temp/out_${i}.trk` (which is a
 MAT-format file) and writes `.temp/out_${i}.mat` with fields `points`, `conf`,
 `start_frame`, `end_frame` — the format `pose.load_pred()` expects.
 
-The temp MATLAB script and log live in `~/.tmp/matlab/cv_convert_<timestamp>.{m,log}`.
-
-## Downstream evaluation
+## Evaluation
 
 After Step 4, the cross-validation accuracy is computed by
 `Cricket-Hunting/utils/notebook/pose_tracking.ipynb` (Evaluation section). Its
