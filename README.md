@@ -21,9 +21,8 @@ A conda environment at `/groups/zhang/home/zhangl5/conda/envs/video` (Python 3.1
 - **Local development** still uses the poetry-managed `.venv`
 
 ## Train / cross-validate DLC tracker (with Janelia Cluster)
-*For Janelia cluster:*
-- Use `bash train.cmd index` for cross-validation training.
-- Training data under `/training/im`
+See `training/README.md` for the full 5-fold CV workflow (split, train,
+validate, convert). Training data lives under `training/im/`.
 
 ## **(DEPRECATED)** Partial scripts used during development 
 
