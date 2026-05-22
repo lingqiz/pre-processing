@@ -24,7 +24,9 @@ if [ ${#FOLDS[@]} -eq 0 ]; then
     FOLDS=(0 1 2 3 4)
 fi
 
-STAMP="$(date +%Y%m%d-%H%M%S)"
+# Use underscores (not hyphens) so MATLAB doesn't parse the filename stem as
+# a subtraction expression inside `run('...')`.
+STAMP="$(date +%Y%m%d_%H%M%S)"
 MFILE="${TMP_M}/cv_convert_${STAMP}.m"
 LOG="${TMP_M}/cv_convert_${STAMP}.log"
 
