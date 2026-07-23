@@ -23,9 +23,12 @@ from utils.base_utils import parse_filename
 
 def run_collect_files(all_params_base, csv_filename):
     """
-    Run collect_files.py for a single CSV file
+    Run collect_files.py for a single CSV file.
+
+    Returns True if the file was processed successfully, False otherwise.
     """
     script_path = os.path.join(os.path.dirname(__file__), 'collect_files.py')
+    success = False
 
     try:
         result = subprocess.run([
@@ -36,6 +39,7 @@ def run_collect_files(all_params_base, csv_filename):
             print(f"✅ Successfully processed: {csv_filename}")
             if result.stdout:
                 print(result.stdout)
+            success = True
         else:
             print(f"❌ Error processing {csv_filename}")
             if result.stderr:
@@ -47,6 +51,7 @@ def run_collect_files(all_params_base, csv_filename):
         print(f"❌ Exception processing {csv_filename}: {e}")
 
     print("-" * 50)
+    return success
 
 def update_data_json(animal_data):
     """Merge per-animal session data into new_format/data.json.
@@ -157,24 +162,25 @@ def main():
                 csv_filename = os.path.basename(matches[0])
                 animal_name, _ = parse_filename(csv_filename)
 
-                # Track per-animal data for data.json
-                if animal_name not in animal_data:
-                    animal_data[animal_name] = {}
-                if category not in animal_data[animal_name]:
-                    animal_data[animal_name][category] = []
-                animal_data[animal_name][category].append(dt)
-
                 print(f"\n⚙️  Processing: {csv_filename}")
 
                 try:
-                    run_collect_files(dest_dir, csv_filename)
-                    success_count += 1
+                    success = run_collect_files(dest_dir, csv_filename)
                 except KeyboardInterrupt:
                     print("\n🛑 Processing interrupted by user")
                     break
                 except Exception as e:
                     print(f"❌ Unexpected error: {e}")
                     continue
+
+                # Only record to data.json for successfully processed sessions
+                if success:
+                    success_count += 1
+                    if animal_name not in animal_data:
+                        animal_data[animal_name] = {}
+                    if category not in animal_data[animal_name]:
+                        animal_data[animal_name][category] = []
+                    animal_data[animal_name][category].append(dt)
 
     # Merge per-animal data into new_format/data.json
     update_data_json(animal_data)

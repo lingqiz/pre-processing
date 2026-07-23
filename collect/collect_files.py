@@ -60,6 +60,7 @@ rig_date_folder = os.path.join(video_base, date_folder)
 
 rig_video_linked = False
 hs_cam_frames_linked = False
+dlc_all_linked = False
 # Find video files in the rig date folder
 if os.path.exists(rig_date_folder):
     # Look for video files matching the pattern video_basler_*.avi
@@ -153,6 +154,51 @@ if os.path.exists(rig_date_folder):
                         os.symlink(closest_hs_cam_frames, hs_cam_frames_link_path)
                     hs_cam_frames_linked = True
                     hs_cam_frames_basename = hs_cam_frames_link_name  # Update for display
+                except Exception:
+                    pass
+
+    # Look for DLC_all CSV files (case varies across dates: DLC_all_* / dlc_all_*)
+    dlc_all_files = (glob.glob(os.path.join(rig_date_folder, 'DLC_all_*.csv'))
+                     + glob.glob(os.path.join(rig_date_folder, 'dlc_all_*.csv')))
+
+    if dlc_all_files:
+        # Define timestamp extractor for DLC_all files
+        def extract_dlc_all_timestamp(csv_file):
+            basename = os.path.basename(csv_file)
+            return basename.replace('DLC_all_', '').replace('dlc_all_', '').replace('.csv', '')
+
+        # Find closest DLC_all file
+        closest_dlc_all, _ = find_closest_video(dlc_all_files, datetime_obj, extract_dlc_all_timestamp)
+
+        # Create softlink to the closest DLC_all file
+        if closest_dlc_all:
+            dlc_all_basename = os.path.basename(closest_dlc_all)
+
+            # Extract actual timestamp from matched file
+            dlc_timestamp_str = extract_dlc_all_timestamp(closest_dlc_all)
+            dlc_datetime = datetime.fromisoformat(dlc_timestamp_str.replace('_', ':'))
+
+            # Check for time mismatch
+            time_diff = abs((dlc_datetime - datetime_obj).total_seconds())
+            if time_diff > 600:  # 10 minutes
+                print(f"❌ ERROR: DLC_all timestamp mismatch > 10 mins: {time_diff:.1f}s - treating as not found")
+                closest_dlc_all = None  # Treat as not found
+            elif time_diff > 120:  # 2 minutes
+                print(f"⚠️  WARNING: DLC_all timestamp mismatch > 120s: {time_diff:.1f}s")
+
+            if closest_dlc_all:  # Only proceed if still valid after time check
+                # Create filename with actual timestamp: 2024-02-22T09_46_32_p16_dlc_all.csv
+                dlc_formatted_timestamp = datetime_to_filename_format(dlc_datetime)
+                dlc_prefix = f"{dlc_formatted_timestamp}_{animal_name}"
+                dlc_all_link_name = f"{dlc_prefix}_dlc_all.csv"
+                dlc_all_link_path = os.path.join(datetime_folder_path, dlc_all_link_name)
+
+                # Create softlink (symbolic link)
+                try:
+                    if not os.path.exists(dlc_all_link_path):
+                        os.symlink(closest_dlc_all, dlc_all_link_path)
+                    dlc_all_linked = True
+                    dlc_all_basename = dlc_all_link_name  # Update for display
                 except Exception:
                     pass
 
@@ -327,6 +373,12 @@ if hs_cam_frames_linked and 'hs_cam_frames_basename' in locals():
     print(f"HS cam frames:   ✅ {hs_cam_frames_basename}")
 else:
     print(f"HS cam frames:   ❌")
+
+# DLC_all CSV with filename
+if dlc_all_linked and 'dlc_all_basename' in locals():
+    print(f"DLC_all CSV:     ✅ {dlc_all_basename}")
+else:
+    print(f"DLC_all CSV:     ❌")
 
 # HS video with filename
 if hs_video_linked and closest_hs_video_name:
