@@ -3,8 +3,13 @@
 Batch submit JAABADetect jobs for sessions specified in a JSON file.
 
 Usage:
-    python batch_jaaba.py <json_filename>
+    python batch_jaaba.py <json_filename> [classifier_config.json]
     python batch_jaaba.py data.json
+    python batch_jaaba.py data.json classifiers.json
+
+The classifier config (default: jaaba/classifiers.json) lists each .jab file
+and the score file it should write, so outputs can be named without editing the
+.jab files or overwriting existing scores.
 """
 
 import os
@@ -22,8 +27,8 @@ from utils.base_utils import parse_filename
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python batch_jaaba.py <json_filename>")
+    if len(sys.argv) not in (2, 3):
+        print("Usage: python batch_jaaba.py <json_filename> [classifier_config.json]")
         print("Example: python batch_jaaba.py data.json")
         sys.exit(1)
 
@@ -34,10 +39,25 @@ def main():
         print(f"Error: JSON file {json_path} does not exist")
         sys.exit(1)
 
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Classifier config: default to jaaba/classifiers.json, or take an explicit
+    # path / filename (resolved relative to the jaaba/ dir) as the 2nd argument.
+    if len(sys.argv) == 3:
+        config_arg = sys.argv[2]
+        config_path = config_arg if os.path.isabs(config_arg) else os.path.join(script_dir, config_arg)
+    else:
+        config_path = os.path.join(script_dir, "classifiers.json")
+
+    if not os.path.exists(config_path):
+        print(f"Error: classifier config {config_path} does not exist")
+        sys.exit(1)
+
     with open(json_path, 'r') as f:
         data = json.load(f)
 
-    run_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "run_jaaba.sh")
+    run_script = os.path.join(script_dir, "run_jaaba.sh")
+    print(f"Using classifier config: {config_path}")
 
     print("=" * 60)
     print("Starting batch JAABA submission...")
@@ -83,7 +103,7 @@ def main():
 
                 print(f"  Submitting: {datetime_folder_name}")
                 try:
-                    subprocess.run([run_script, expdir], check=False)
+                    subprocess.run([run_script, expdir, config_path], check=False)
                     submitted += 1
                 except Exception as e:
                     print(f"  ERROR: {e}")

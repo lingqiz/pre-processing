@@ -1,0 +1,19 @@
+{
+  "classifiers": [
+    {
+      "note": "rearing",
+      "jab": "/groups/dennis/dennislab/lingqi/05182026_Rearing.jab",
+      "scorefile": "scores_Rearing.mat"
+    },
+    {
+      "note": "grooming - OLD classifier",
+      "jab": "/groups/dennis/dennislab/lingqi/05182026_Grooming.jab",
+      "scorefile": "scores_Grooming.mat"
+    },
+    {
+      "note": "grooming - NEW classifier (08/13/2026)",
+      "jab": "/groups/dennis/dennislab/lingqi/08132026_Grooming.jab",
+      "scorefile": "scores_Grooming_08132026.mat"
+    }
+  ]
+}
