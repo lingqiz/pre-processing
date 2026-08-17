@@ -18,11 +18,9 @@ folder_name=$(basename "$expdir")
 # Replace hyphens with underscores so MATLAB doesn't parse them as minus
 safe_name="${folder_name//-/_}"
 
-# Create a temporary MATLAB script for this specific expdir
+# temp directory for the code and log files
 temp_script="/groups/zhang/home/zhangl5/.tmp/matlab/jaaba_${safe_name}.m"
 log_file="/groups/zhang/home/zhangl5/.tmp/matlab/jaaba_${safe_name}.log"
-# Per-session scratch for the derived jabs (jab + overridden scorefilename)
-derived_dir="/groups/zhang/home/zhangl5/.tmp/matlab/derived_jabs"
 
 cat > "$temp_script" << EOF
 try
@@ -30,42 +28,60 @@ try
 
     expdir = '$expdir';
     config_file = '$config';
-    derived_dir = '$derived_dir';
-    if ~exist(derived_dir, 'dir'); mkdir(derived_dir); end
+
+    % Set safe temp directory for the parpool workers
+    jobid = getenv('LSB_JOBID');
+    if isempty(jobid); jobid = 'nojob'; end
+    scratch_base = fullfile('/scratch/zhangl5', sprintf('%s_%s', '$safe_name', jobid));
+    [ok, ~] = mkdir(scratch_base);
+    if ~ok
+        % Node-local /scratch unavailable: fall back to the node's temp dir.
+        scratch_base = fullfile(tempdir, sprintf('jaaba_%s_%s', '$safe_name', jobid));
+        mkdir(scratch_base);
+    end
+    temp_jabs_dir = fullfile(scratch_base, 'temp_jabs'); mkdir(temp_jabs_dir);
+    pool_dir = fullfile(scratch_base, 'matlab_pool'); mkdir(pool_dir);
+    fprintf('Scratch: %s\n', scratch_base);
+
+    pc = parcluster('Processes');
+    pc.JobStorageLocation = pool_dir;
+    parpool(pc);   % JAABADetect reuses this pre-started, isolated pool
 
     % Read the classifier config: which .jab to run and what score file it writes.
     cfg = jsondecode(fileread(config_file));
     C = cfg.classifiers;
     n = numel(C);
 
-    % Build a derived .jab per classifier with the configured output name baked in.
-    % The original .jab files are never modified; derived copies live in scratch.
+    % Build a temp .jab per classifier with the configured output name baked in.
+    % The original .jab files are never modified; temp copies live in scratch.
     jabfiles = cell(1, n);
     for i = 1:n
         if iscell(C); c = C{i}; else; c = C(i); end
         x = loadAnonymous(c.jab);
         x.file.scorefilename = {c.scorefile};
         [~, base, ext] = fileparts(c.jab);
-        derived = fullfile(derived_dir, sprintf('%s__c%d__%s%s', '$safe_name', i, base, ext));
-        saveAnonymous(derived, x);
-        jabfiles{i} = derived;
-        fprintf('Derived %s -> scorefile %s\n', c.jab, c.scorefile);
+        temp_jab = fullfile(temp_jabs_dir, sprintf('c%d__%s%s', i, base, ext));
+        saveAnonymous(temp_jab, x);
+        jabfiles{i} = temp_jab;
+        fprintf('Temp jab %s -> scorefile %s\n', c.jab, c.scorefile);
     end
 
     JAABADetect(expdir, 'jabfiles', jabfiles(:), 'forcecompute', true);
     fprintf('Successfully ran JAABADetect on %s\n', expdir);
 
-    % Clean up the derived jabs (deterministic names, safe to remove after the run).
-    for i = 1:n
-        if exist(jabfiles{i}, 'file'); delete(jabfiles{i}); end
-    end
+    % Tear down the pool, then remove all of this job's scratch in one go
+    % (covers both temp_jabs and the pool storage).
+    delete(gcp('nocreate'));
+    if exist(scratch_base, 'dir'); rmdir(scratch_base, 's'); end
     exit(0);
 catch ME
     fprintf('Error running JAABADetect: %s\n', ME.message);
+    delete(gcp('nocreate'));
+    if exist('scratch_base', 'var') && exist(scratch_base, 'dir'); rmdir(scratch_base, 's'); end
     exit(1);
 end
 EOF
 
-ssh -o "StrictHostKeyChecking no" -t login1.int.janelia.org \
+ssh -o "StrictHostKeyChecking no" -n login1.int.janelia.org \
   "bsub -J jaaba_detect -o '$log_file' -e '$log_file' -n 2 \
   \"module load matlab && matlab -batch \\\"run('$temp_script')\\\"\""
